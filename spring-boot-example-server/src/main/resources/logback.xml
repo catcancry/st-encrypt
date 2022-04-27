@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <shutdownHook class="ch.qos.logback.core.hook.DelayingShutdownHook"/>
+    <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener"/>
+    <property name="LOG_HOME" value="${log.home:-/home/log/}"/>
+    <property name="LOG_APP_NAME" value="${log.app-name:-st-encrypt-sdk-spring-boot-starter-example}"/>
+    <property name="MAX_SINGLE_LOG_FILE_SIZE" value="${log.max-single-log-file-size:-100MB}"/>
+    <property name="MAX_LOG_FILE_HISTORY" value="${log.max-log-file-history:-180}"/>
+    <property name="LOG_FILE_TOTAL_CAPACITY" value="${log.log-file-total-capacity:-1GB}"/>
+    <property name="ASYNC_DISCARDING_THRESHOLD" value="${log.async.discarding-threshold:-0}"/>
+    <property name="ASYNC_LOG_QUEUE_SIZE" value="${log.async.queue-size:-256}"/>
+
+    <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger - %msg%n"/>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="ASYNC_STDOUT" class="ch.qos.logback.classic.AsyncAppender">
+        <discardingThreshold>${ASYNC_DISCARDING_THRESHOLD}</discardingThreshold>
+        <queueSize>${ASYNC_LOG_QUEUE_SIZE}</queueSize>
+        <includeCallerData>true</includeCallerData>
+        <appender-ref ref="STDOUT"/>
+    </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_HOME}/${LOG_APP_NAME}.out</file>
+        <append>true</append>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_HOME}/logs/${LOG_APP_NAME}/${LOG_APP_NAME}.%d{yyyy-MM-dd}.%i.log.zip</fileNamePattern>
+            <!--开启日志清理功能，自动保留多少个日志-->
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+            <!--单个日志文件大小-->
+            <maxFileSize>${MAX_SINGLE_LOG_FILE_SIZE}</maxFileSize>
+            <!--历史文件保留个数 当一天一个时，则为保留天数，当一天多个时则只保留个数，所以建议合理设置单个日志文件大小-->
+            <maxHistory>${MAX_LOG_FILE_HISTORY}</maxHistory>
+            <!--总日志大小-->
+            <totalSizeCap>${LOG_FILE_TOTAL_CAPACITY}</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <discardingThreshold>${ASYNC_DISCARDING_THRESHOLD}</discardingThreshold>
+        <queueSize>${ASYNC_LOG_QUEUE_SIZE}</queueSize>
+        <includeCallerData>true</includeCallerData>
+        <appender-ref ref="FILE"/>
+    </appender>
+
+    <root level="info">
+        <appender-ref ref="ASYNC_STDOUT"/>
+        <appender-ref ref="ASYNC_FILE"/>
+    </root>
+</configuration>
