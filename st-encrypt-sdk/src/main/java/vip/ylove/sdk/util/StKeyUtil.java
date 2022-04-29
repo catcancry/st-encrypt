@@ -12,4 +12,7 @@ public final class StKeyUtil {
          keyMap.set(key);
          return key;
     }
+    public static void remove(){
+         keyMap.remove();
+    }
 }

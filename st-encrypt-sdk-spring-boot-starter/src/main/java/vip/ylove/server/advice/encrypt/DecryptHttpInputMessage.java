@@ -6,17 +6,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpInputMessage;
+import vip.ylove.sdk.exception.StException;
 import vip.ylove.sdk.server.dencrypt.StAbstractAuth;
 import vip.ylove.sdk.server.dencrypt.StAbstractRequestDencrypt;
-import vip.ylove.sdk.exception.StException;
 
 import java.io.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
- * Author:Bobby
- * DateTime:2019/4/9
+ *
+ * @author catcancry
  **/
 public class DecryptHttpInputMessage implements HttpInputMessage{
 
@@ -32,7 +32,9 @@ public class DecryptHttpInputMessage implements HttpInputMessage{
             StException.throwExec(3,"privateKey is null");
         }
         stopWatch.start("读取信息时长");
+
         this.headers = inputMessage.getHeaders();
+        log.debug("当前请求类型contentType:{}",this.headers.getContentType());
 
         String content = null;
         try {

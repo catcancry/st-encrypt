@@ -1,10 +1,12 @@
 package vip.ylove.sdk.util;
 
 import cn.hutool.core.codec.Base64;
+import cn.hutool.core.date.StopWatch;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import cn.hutool.crypto.asymmetric.KeyType;
 import cn.hutool.crypto.asymmetric.RSA;
+import cn.hutool.crypto.asymmetric.SignAlgorithm;
 import cn.hutool.crypto.digest.DigestUtil;
 import cn.hutool.crypto.symmetric.SymmetricAlgorithm;
 import cn.hutool.json.JSONUtil;
@@ -44,31 +46,36 @@ public class StServerUtil {
     }
 
     /**
-     * 解密响应结果(在线程不变的情况下可以使用这个方法，完成加密解密)
+     * 加密响应结果(在线程不变的情况下可以使用这个方法，完成加密解密)
+     * @param privateKey rsa私钥
      * @param content 加密内容
      * @return vip.ylove.sdk.dto.StResponseBody
      **/
-    public static StResponseBody encrypt(String  content) {
-        return encrypt( StKeyUtil.getKey(),  content);
+    public static StResponseBody encrypt(String privateKey,String  content) {
+        StResponseBody encrypt = encrypt(privateKey,StKeyUtil.getKey(), content);
+        StKeyUtil.remove();
+        return encrypt;
     }
 
     /**
      * 加密响应结果
+     * @param privateKey rsa私钥
      * @param aesKey aesKey
      * @param content 加密内容
      * @return vip.ylove.sdk.dto.StResponseBody
      **/
-    public static StResponseBody encrypt(String aesKey,String content) {
-        StStopWatch stopWatch = new StStopWatch("加密对象");
+    public static StResponseBody encrypt(String privateKey,String aesKey,String content) {
+        StKeyUtil.remove();
+        StopWatch stopWatch = new StopWatch("加密对象");
         stopWatch.start("对象转换为byte[]");
         byte [] dataByte = StrUtil.bytes(content);
         stopWatch.stop();
         stopWatch.start("AES加密");
         String encryptData = SecureUtil.aes(StrUtil.bytes(aesKey)).encryptBase64(dataByte);
         stopWatch.stop();
-        stopWatch.start("MD5hex签名内容");
+        stopWatch.start("签名内容");
         //签名原始内容
-        String sign = signMD5Hex(dataByte);
+        String sign = SecureUtil.sign(SignAlgorithm.MD5withRSA,privateKey,null).signHex(dataByte);
         stopWatch.stop();
         log.debug(stopWatch.prettyPrint(TimeUnit.MILLISECONDS));
         return new StResponseBody(sign,encryptData);
@@ -85,7 +92,7 @@ public class StServerUtil {
      * @return java.lang.Object
      **/
     public static  byte[] dencrypt(String privateKey, String content, StAbstractAuth stAuth){
-        StStopWatch stopWatch = new StStopWatch("参数解密");
+        StopWatch stopWatch = new StopWatch("参数解密");
         stopWatch.start("将入参转换为StDencryptBody对象");
         StResquestBody dencryptBody = JSONUtil.toBean(content, StResquestBody.class);
         stopWatch.stop();
@@ -152,34 +159,6 @@ public class StServerUtil {
         log.debug(stopWatch.prettyPrint(TimeUnit.MILLISECONDS));
         StException.throwExec(11,"按照规定格式进行加密");
         return null;
-    }
-
-    /**
-     *  生成签名 使用简单signMD5Hex 保证效率
-     * @param data 内容
-     * @return java.lang.String
-     **/
-    public static String signMD5Hex(String data){
-        return DigestUtil.md5Hex(data);
-    }
-
-    /**
-     *  生成签名 使用简单signMD5Hex 保证效率
-     * @param data 内容
-     * @return java.lang.String
-     **/
-    public static String  signMD5Hex(byte[] data){
-        return DigestUtil.md5Hex(data);
-    }
-
-    /**
-     * 验证签名
-     * @param data 内容
-     * @param sign 签名
-     * @return boolean
-     **/
-    public static boolean  signVerifyMD5(byte[] data,String sign){
-        return sign.equals(DigestUtil.md5Hex(data));
     }
 
     /**
