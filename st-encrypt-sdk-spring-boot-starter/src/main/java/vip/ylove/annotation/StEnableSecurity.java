@@ -8,9 +8,6 @@ import vip.ylove.server.advice.encrypt.StServerDencryptRequestBodyAdvice;
 
 import java.lang.annotation.*;
 
-/**
- *
- */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
