@@ -55,4 +55,8 @@ public class StResquestBody {
         this.data = data;
     }
 
+    @Override
+    public String toString() {
+        return "StResquestBody{" + "sign='" + sign + '\'' + ", key='" + key + '\'' + ", data='" + data + '\'' + '}';
+    }
 }

@@ -1,4 +1,4 @@
-package vip.ylove.server.advice.dencrypt;
+package vip.ylove.server.advice.encrypt;
 
 import cn.hutool.core.date.StopWatch;
 import cn.hutool.json.JSONUtil;

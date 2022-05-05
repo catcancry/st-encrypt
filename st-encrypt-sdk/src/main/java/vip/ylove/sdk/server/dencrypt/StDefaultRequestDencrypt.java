@@ -10,7 +10,7 @@ import vip.ylove.sdk.util.StServerUtil;
 public class StDefaultRequestDencrypt implements StAbstractRequestDencrypt {
 
     @Override
-    public byte[] dencrypt(String RSAKey, String content,StAbstractAuth stAuth) {
-        return StServerUtil.dencrypt(RSAKey,content,stAuth);
+    public byte[] dencrypt(String RSAKey, String content,Object obj,StAbstractAuth stAuth) {
+        return StServerUtil.dencrypt(RSAKey,content,obj,stAuth);
     }
 }

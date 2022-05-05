@@ -12,6 +12,7 @@ import cn.hutool.crypto.symmetric.SymmetricAlgorithm;
 import cn.hutool.json.JSONUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import vip.ylove.sdk.common.StAuthInfo;
 import vip.ylove.sdk.common.StConst;
 import vip.ylove.sdk.dto.StResponseBody;
 import vip.ylove.sdk.dto.StResquestBody;
@@ -66,6 +67,7 @@ public class StServerUtil {
      **/
     public static StResponseBody encrypt(String privateKey,String aesKey,String content) {
         StKeyUtil.remove();
+        StAuthUtil.auth.remove();
         StopWatch stopWatch = new StopWatch("加密对象");
         stopWatch.start("对象转换为byte[]");
         byte [] dataByte = StrUtil.bytes(content);
@@ -88,10 +90,11 @@ public class StServerUtil {
      * 解密请求参数
      * @param privateKey rsa私钥
      * @param content    加密内容
+     * @param obj        扩展信息
      * @param stAuth     鉴权接口
      * @return java.lang.Object
      **/
-    public static  byte[] dencrypt(String privateKey, String content, StAbstractAuth stAuth){
+    public static  byte[] dencrypt(String privateKey, String content,Object obj, StAbstractAuth stAuth){
         StopWatch stopWatch = new StopWatch("参数解密");
         stopWatch.start("将入参转换为StDencryptBody对象");
         StResquestBody dencryptBody = JSONUtil.toBean(content, StResquestBody.class);
@@ -135,7 +138,7 @@ public class StServerUtil {
             stopWatch.start("鉴权验证");
             //调用接口进行权限验证,若没有实现则默认跳过验证
             if(stAuth != null){
-                boolean authResult = stAuth.auth(appId, auth,Long.parseLong(t));
+                boolean authResult = stAuth.auth(appId, auth,t,obj);
                 if(!authResult){
                     StException.throwExec(2,"认证未通过");
                     return null;
@@ -143,6 +146,9 @@ public class StServerUtil {
             }else{
                 log.debug("未实现StAuth权限验证，跳过验证");
             }
+            //存储授权信息
+            StAuthUtil.auth.set(new StAuthInfo(appId,auth,t));
+
             stopWatch.stop();
 
             stopWatch.start("AES解密body");

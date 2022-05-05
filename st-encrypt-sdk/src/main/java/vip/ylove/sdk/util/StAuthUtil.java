@@ -1,11 +1,17 @@
 package vip.ylove.sdk.util;
 
+import vip.ylove.sdk.common.StAuthInfo;
+
 /**
  * 基于BCrypt对auth进行基本授权码加密和验证，拒绝明文存储授权码
- * @Description
- * @Author catcancry
+ * @author catcancry
  */
 public class StAuthUtil {
+    /**
+     * 保存授权信息
+     * @author catcancry
+     **/
+    public static final  ThreadLocal<StAuthInfo> auth = new ThreadLocal<>();
 
     /**
      * 验证授权是否正确

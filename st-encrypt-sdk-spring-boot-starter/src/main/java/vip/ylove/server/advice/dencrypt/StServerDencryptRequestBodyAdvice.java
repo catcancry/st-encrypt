@@ -1,4 +1,4 @@
-package vip.ylove.server.advice.encrypt;
+package vip.ylove.server.advice.dencrypt;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +13,7 @@ import vip.ylove.annotation.StEncryptSkip;
 import vip.ylove.config.StConfig;
 import vip.ylove.sdk.server.dencrypt.StAbstractAuth;
 import vip.ylove.sdk.server.dencrypt.StAbstractRequestDencrypt;
+import vip.ylove.server.advice.dencrypt.DecryptHttpInputMessage;
 
 import java.lang.reflect.Type;
 
@@ -55,7 +56,7 @@ public class StServerDencryptRequestBodyAdvice implements RequestBodyAdvice {
     public HttpInputMessage beforeBodyRead(HttpInputMessage inputMessage, MethodParameter parameter, Type targetType,
                                            Class<? extends HttpMessageConverter<?>> converterType){
         log.debug("线程[{}]->解密请求-->开始解密",Thread.currentThread().getId());
-        return new DecryptHttpInputMessage(stConfig.getPrivateKey(),stDencrypt,stAuth,inputMessage, stConfig.getPrivateKey());
+        return new DecryptHttpInputMessage(parameter,stConfig.getPrivateKey(),stDencrypt,stAuth,inputMessage, stConfig.getPrivateKey());
     }
 
     @Override

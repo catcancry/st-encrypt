@@ -12,7 +12,7 @@ public class StDefaultRequestAbstractAuth implements StAbstractAuth {
     private static final Logger log = LoggerFactory.getLogger(StDefaultRequestAbstractAuth.class);
 
     @Override
-    public boolean auth(String appId, String auth, long t) {
+    public boolean auth(String appId, String auth, String t, Object obj) {
         log.debug("默认认证方式:appId[{}]-auth[{}]-t[{}]",appId, auth,t);
         return true;
     }
