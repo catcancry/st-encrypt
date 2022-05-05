@@ -13,6 +13,6 @@ public interface StAbstractRequestDencrypt {
      * @param stAuth 鉴权方法 可为空
      * @return byte[]
      */
-    byte[]  dencrypt(final  String RSAKey,final String content,final StAbstractAuth stAuth);
+    byte[]  dencrypt(final  String RSAKey,final String content,final Object obj,final StAbstractAuth stAuth);
 
 }

@@ -113,18 +113,19 @@ public class StAuth implements StAbstractAuth {
 
 - **第三方调用接口**
 ```
- //加密请求参数
-StDencryptBody encrypt = StUtil.encrypt(stConfig.getPublicKey(),
+//加密请求参数
+StResquestBody encrypt = StClientUtil.encrypt(stConfig.getPublicKey(),
                                         System.currentTimeMillis(),
                                         stConfig.getAppId(),
                                         stConfig.getAppAuth(), form);
+
 //发送请求
 EncryptResult stEncryptBody = serverService.encrypt(encrypt);
 
 Object result = null;
-if( stEncryptBody.success()){
+if( stEncryptBody.isSuccess()){
     //解密数据
-     result = StUtil.dencrypt(stConfig.getPublicKey(), stEncryptBody);
+     result = StClientUtil.dencrypt(stConfig.getPublicKey(), stEncryptBody);
 }else{
     result = stEncryptBody;
 }

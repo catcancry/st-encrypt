@@ -30,6 +30,12 @@ public class StConfig {
      */
     private String appAuth;
 
+    /**
+     * 开启全局加密解密
+     * @author catcancry
+     **/
+    private boolean enableGlobalEncrypt =  false;
+
     public String getPrivateKey() {
         return privateKey;
     }
@@ -60,5 +66,13 @@ public class StConfig {
 
     public void setAppAuth(String appAuth) {
         this.appAuth = appAuth;
+    }
+
+    public boolean isEnableGlobalEncrypt() {
+        return enableGlobalEncrypt;
+    }
+
+    public void setEnableGlobalEncrypt(boolean enableGlobalEncrypt) {
+        this.enableGlobalEncrypt = enableGlobalEncrypt;
     }
 }

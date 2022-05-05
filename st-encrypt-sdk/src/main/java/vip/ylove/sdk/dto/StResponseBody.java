@@ -44,6 +44,10 @@ public class StResponseBody implements StBody {
         this.data = data;
     }
 
+    @Override
+    public String toString() {
+        return "StResponseBody{" + "sign='" + sign + '\'' + ", data='" + data + '\'' + '}';
+    }
 
     @Override
     public boolean isSuccess() {

@@ -1,5 +1,7 @@
 package vip.ylove.demo.client.rest;
 
+import cn.hutool.core.date.StopWatch;
+import cn.hutool.crypto.SecureUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -10,9 +12,8 @@ import vip.ylove.config.StConfig;
 import vip.ylove.demo.client.common.BaseResult;
 import vip.ylove.demo.client.common.EncryptResult;
 import vip.ylove.demo.client.service.TestServerService;
-import vip.ylove.sdk.util.StClientUtil;
 import vip.ylove.sdk.dto.StResquestBody;
-import vip.ylove.sdk.util.StStopWatch;
+import vip.ylove.sdk.util.StClientUtil;
 
 import java.util.concurrent.TimeUnit;
 
@@ -35,7 +36,6 @@ public class TestClientRest {
     @PostMapping("/noEncrypt")
     public BaseResult noEncrypt(@RequestBody Object form){
         BaseResult baseResult = serverService.noEncrypt(form);
-
         return baseResult;
     }
 
@@ -46,7 +46,7 @@ public class TestClientRest {
      */
     @PostMapping("/encrypt")
     public Object test(@RequestBody Object form){
-        StStopWatch stopWatch = new StStopWatch("第三方调用加密服务");
+        StopWatch stopWatch = new StopWatch("第三方调用加密服务");
         log.info("{}",form);
         stopWatch.start("加密请求参数");
         //加密请求参数

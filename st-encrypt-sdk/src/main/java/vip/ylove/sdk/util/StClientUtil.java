@@ -1,10 +1,13 @@
 package vip.ylove.sdk.util;
 
 import cn.hutool.core.codec.Base64;
+import cn.hutool.core.date.StopWatch;
+import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import cn.hutool.crypto.asymmetric.KeyType;
 import cn.hutool.crypto.asymmetric.RSA;
+import cn.hutool.crypto.asymmetric.SignAlgorithm;
 import cn.hutool.crypto.digest.DigestUtil;
 import cn.hutool.crypto.symmetric.SymmetricAlgorithm;
 import cn.hutool.json.JSONUtil;
@@ -66,7 +69,7 @@ public class StClientUtil {
      * @return vip.ylove.sdk.dto.StResquestBody
      */
     public static StResquestBody encrypt(String RSAPublicKey, String AesKey, long t, String appId, String auth, String data) {
-        StStopWatch stopWatch = new StStopWatch("客户端-加密信息");
+        StopWatch stopWatch = new StopWatch("客户端-加密信息");
         stopWatch.start("生成明文key");
         StringBuffer keyDataBuffer = new StringBuffer(20);
         if(StrUtil.isBlankIfStr(AesKey)){
@@ -133,7 +136,8 @@ public class StClientUtil {
      * @return java.lang.String
      */
     public static  String dencrypt(String publicKey, String aesKey, StBody stEncryptBody){
-        StStopWatch stopWatch = new StStopWatch("客户端-解密信息");
+        StKeyUtil.remove();
+        StopWatch stopWatch = new StopWatch("客户端-解密信息");
         String data = stEncryptBody.getData();
         String sign = stEncryptBody.getSign();
 
@@ -141,9 +145,12 @@ public class StClientUtil {
         byte[] decryptData = SecureUtil.aes(StrUtil.bytes(aesKey)).decrypt(data);
         stopWatch.stop();
         stopWatch.start("验证签名");
-        //签名原始内容s
-        boolean verify = StClientUtil.signVerifyMD5(decryptData,sign);
+        //签名原始内容
+        boolean verify = SecureUtil.sign(SignAlgorithm.MD5withRSA,null,publicKey).verify (decryptData,HexUtil.decodeHex(sign));
         log.debug("验签结果：{}",verify);
+        if(!verify){
+            StException.throwExec(12,"验签失败");
+        }
         stopWatch.stop();
         log.debug(stopWatch.prettyPrint(TimeUnit.MILLISECONDS));
         return new String(decryptData);
@@ -194,7 +201,9 @@ public class StClientUtil {
      * @return java.lang.String
      */
     public static  String dencrypt(String publicKey, StBody stEncryptBody){
-        return StClientUtil.dencrypt(publicKey,StKeyUtil.getKey(),stEncryptBody);
+        String dencrypt = StClientUtil.dencrypt(publicKey, StKeyUtil.getKey(), stEncryptBody);
+        StKeyUtil.remove();
+        return dencrypt;
     }
 
 }

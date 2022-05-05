@@ -8,7 +8,7 @@
     <parent>
         <groupId>vip.ylove</groupId>
         <artifactId>st-encrypt-sdk-parent</artifactId>
-        <version>1.0</version>
+        <version>1.0.1</version>
     </parent>
 
     <artifactId>st-encrypt-sdk-spring-boot-starter</artifactId>
