@@ -21,11 +21,11 @@ Spring Boot接口加密，可以对返回值、参数值通过注解的方式自
 服务器端  
 使用RSA私钥解密得到AES的KEY、授权Auth和appId ，可以验证本次请求是否有效
 
-通过解密的到AES_key解密加密的data,获取到数据-->处理结果-->使用AES_key的key加密响应结果，并使用md5hex(data)签名内容，响应调用端
+通过解密的到AES_key解密加密的data,获取到数据-->处理结果-->使用AES_key的key加密响应结果，并使用私钥进行MD5withRSA(data)签名内容，响应调用端
 ```
 {
    data:AES_key加密（data数据）
-   sign：md5hex(data)
+   sign：私钥进行MD5withRSA(data)
 }
 
 ```
@@ -41,13 +41,13 @@ Spring Boot接口加密，可以对返回值、参数值通过注解的方式自
 <dependency>
     <groupId>vip.ylove</groupId>
     <artifactId>st-encrypt-sdk</artifactId>
-    <version>1.0</version>
+    <version>1.0.1</version>
 </dependency>
 或者
 <dependency>
     <groupId>vip.ylove</groupId>
     <artifactId>st-encrypt-sdk-spring-boot-starter</artifactId>
-    <version>1.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 
@@ -60,7 +60,7 @@ implementation 'vip.ylove:st-encrypt-sdk:1.0'
 <dependency>
     <groupId>vip.ylove</groupId>
     <artifactId>st-encrypt-sdk-spring-boot-starter</artifactId>
-    <version>1.0</version>
+    <version>1.0.1</version>
 </dependency>
 ```
 - **启动类Application中添加@StEnableSecurity注解**
