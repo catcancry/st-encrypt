@@ -17,4 +17,14 @@ public class StException extends   RuntimeException{
         throw new StException(msg, code);
     }
 
+    public class ErrorCode{
+
+        /**
+         * 未获取到数据加密解密的key
+         */
+        public final static int NOT_GET_KEY = 31;
+
+
+    }
+
 }

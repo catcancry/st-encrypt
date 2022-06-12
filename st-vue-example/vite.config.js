@@ -15,6 +15,7 @@ export default defineConfig({
 	},
 	server: {
 		port: 3000, //启动端口
+		host:"0.0.0.0",
 		open: false,
 		// proxy: {
 		// 	'/api': {

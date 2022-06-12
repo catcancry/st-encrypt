@@ -15,7 +15,8 @@
 
     <properties>
         <java.version>1.8</java.version>
-        <st-encrypt-sdk.version>1.0.1</st-encrypt-sdk.version>
+        <compile.version>1.8</compile.version>
+        <st-encrypt-sdk.version>1.0.2</st-encrypt-sdk.version>
     </properties>
 
     <dependencies>
@@ -97,6 +98,15 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>${compile.version}</source>
+                    <target>${compile.version}</target>
+                </configuration>
             </plugin>
         </plugins>
     </build>

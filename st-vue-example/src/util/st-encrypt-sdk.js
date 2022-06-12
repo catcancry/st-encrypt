@@ -12,7 +12,7 @@ const StClientUtil = {};
 /**
  * 随机生成16位的AES密钥
  */
-function getKeyAES() {
+StClientUtil.getKeyAES = ()=> {
   const key = []
   for (let i = 0; i < 16; i++) {
     const num = Math.floor(Math.random() * 26)
@@ -32,7 +32,7 @@ function getKeyAES() {
  * @param key 密钥
  * @returns 加密后的数据
  */
-function encodeAES(data, key) {
+StClientUtil.encodeAES = (data, key)=> {
   if (typeof data !== 'string') {
     data = JSON.stringify(data)
   }
@@ -55,7 +55,7 @@ function encodeAES(data, key) {
  * @param key 密钥
  * @returns 解密后的数据
  */
-function decodeAES(data, key) {
+StClientUtil.decodeAES = (data, key)=> {
   if (typeof data !== 'string') {
     data = JSON.stringify(data)
   }
@@ -77,7 +77,7 @@ function decodeAES(data, key) {
  * @param key 密钥
  * @returns 加密后的数据
  */
-function encodeRSA(data, key) {
+StClientUtil.encodeRSA = (data, key)=> {
   if (typeof data !== 'string') {
     data = JSON.stringify(data)
   }		
@@ -93,7 +93,7 @@ function encodeRSA(data, key) {
  * @param key 密钥
  * @returns 解密后的数据
  */
-function decodeRSA(data, key) {
+StClientUtil.decodeRSA = (data, key) => {
   if (typeof data !== 'string') {
     data = JSON.stringify(data)
   }		
@@ -107,7 +107,7 @@ function decodeRSA(data, key) {
  * @param data 需要签名的数据
  * @param key SHA1签名的密钥
  */
-function sign(data, key ) {
+StClientUtil.sign = (data, key ) => {
   if (typeof data !== 'string') {
     data = JSON.stringify(data)
   }		    
@@ -126,7 +126,7 @@ function sign(data, key ) {
  * @param  sign 签名值
  * @param  key rsa公钥
  */
-function signVerify(data,sign, key) {  
+StClientUtil.signVerify = (data,sign, key) => {  
   if (typeof data !== 'string') {
 	data = JSON.stringify(data)
   }
@@ -143,7 +143,7 @@ function signVerify(data,sign, key) {
  * 通过md5获取摘要信息
  * @param  data
  */
-function md5(data){
+StClientUtil.md5 = (data)=>{
 	if (typeof data !== 'string') {
 	  data = JSON.stringify(data)
 	}
@@ -155,7 +155,7 @@ function md5(data){
  * @param date 日期
  * @param formatType 格式化类型
  */
-function format(date, formatType = 'yyyy-MM-dd hh:mm:ss') {
+StClientUtil.format = (date, formatType = 'yyyy-MM-dd hh:mm:ss')=> {
   // eslint-disable-next-line no-extend-native
   Date.prototype.format =
     function(fmt) {
@@ -206,33 +206,48 @@ StClientUtil.createAESBase64Key = ()=>{
 	return  result
 }
 
-
-StClientUtil.encrypt = (publicKey,aesKey,t,appId,appAuth,data)=>{
-
-	appId = appId == null ? "null":appId;
-	appAuth = appAuth == null ? "null":appAuth;
-	//安装格式拼接代码
-	let keyTemp = [aesKey,t,appId,appAuth].join("###");
-	//rsa加密key
-	let keyTempEncrypt = encodeRSA(keyTemp,publicKey);
-	
-	//进行内容摘要
-	let sign = md5(keyTemp);
-	//aes加密内容
-	let dataTemp = encodeAES(data,aesKey) ;
-	
-	return {sign:sign,key:keyTempEncrypt,data:dataTemp}
+/**
+ * 
+ * @param  publicKey 公钥
+ * @param  aesKey    aeskey
+ * @param  t         时间戳
+ * @param  appId     授权appId
+ * @param  appAuth 	 授权appAuth
+ * @param  data      待加密的数据
+ * @param  neeDynamicKey  是否使用动态key,使用的话将会在请求参数中添加加密的动态key
+ */
+StClientUtil.encrypt = (publicKey,aesKey,t,appId,appAuth,data,neeDynamicKey)=>{
+	//是否需要往后端传key
+	if(neeDynamicKey == true){
+		appId = appId == null ? "null":appId;
+		appAuth = appAuth == null ? "null":appAuth;
+		//按照格式拼接代码
+		let keyTemp = [aesKey,t,appId,appAuth].join("###");
+		//rsa加密key
+		let keyTempEncrypt = StClientUtil.encodeRSA(keyTemp,publicKey);
+		
+		//进行内容摘要
+		//let sign = md5(keyTemp);
+		//aes加密内容
+		let dataTemp = StClientUtil.encodeAES(data,aesKey) ;
+		
+		return {key:keyTempEncrypt,data:dataTemp}
+	}else{
+		let dataTemp = StClientUtil.encodeAES(data,aesKey) ;
+		return {data:dataTemp}
+	}
 }
-
-StClientUtil.dencrypt = (publicKey,aesKey,data,func)=>{
-	//解密请求结果
-	let sign = data.sign;
-	let data2 = data.data;
-
+/**
+ * 
+ * @param  publicKey 公钥
+ * @param  aesKey    加密key
+ * @param  data 	 后端响应的加密数据
+ */
+StClientUtil.dencrypt = (publicKey,aesKey,data)=>{
 	//使用aes解密响应结果
-	let dataTemp = decodeAES(data2,aesKey);	
+	let dataTemp = StClientUtil.decodeAES(data.data,aesKey);	
 	//验证签名是否正确
-	let v = signVerify(dataTemp,sign,publicKey) 
+	let v = StClientUtil.signVerify(dataTemp,data.sign,publicKey) 
 	return {signVerify:v,data:JSON.parse(dataTemp)};
 }
 

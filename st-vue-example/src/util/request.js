@@ -27,7 +27,12 @@ service.interceptors.request.use(
 		if(config.encrypt){//从请求配置中读取是否需要加密
 			let aesKey = stClientUtil.createAESBase64Key();
 			config.aesKey = aesKey;//保存本次请求的加密key
-			config.data = stClientUtil.encrypt(publicKey,aesKey,new Date().getTime(),appId,appAuth,config.data);
+			if(config.method == 'get'){
+				console.info(config)
+				config.params = stClientUtil.encrypt(publicKey,aesKey,new Date().getTime(),appId,appAuth,config.params,true);
+			}else{
+				config.data = stClientUtil.encrypt(publicKey,aesKey,new Date().getTime(),appId,appAuth,config.data,true);
+			}	
 		}
 		return config
 	},

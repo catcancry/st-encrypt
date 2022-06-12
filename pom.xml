@@ -8,7 +8,7 @@
     <groupId>vip.ylove</groupId>
     <artifactId>st-encrypt-sdk-parent</artifactId>
     <name>${project.artifactId}</name>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <description>Spring Boot 接口请求参数自动加解密</description>
     <url>https://github.com/catcancry/st-encrypt</url>
 
@@ -17,7 +17,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
-        <compile.version>8</compile.version>
+        <compile.version>1.8</compile.version>
 
         <springboot-version>2.1.4.RELEASE</springboot-version>
         <slf4j-api.version>1.7.36</slf4j-api.version>
@@ -27,8 +27,8 @@
     <modules>
         <module>st-encrypt-sdk</module>
         <module>st-encrypt-sdk-spring-boot-starter</module>
-        <!--<module>spring-boot-example-server</module>-->
-        <!--<module>spring-boot-example-client</module>-->
+        <module>spring-boot-example-server</module>
+        <module>spring-boot-example-client</module>
     </modules>
 
 

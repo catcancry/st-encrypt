@@ -11,7 +11,30 @@ public class StAuthUtil {
      * 保存授权信息
      * @author catcancry
      **/
-    public static final  ThreadLocal<StAuthInfo> auth = new ThreadLocal<>();
+    private static final  ThreadLocal<StAuthInfo> auth = new ThreadLocal<>();
+
+    /**
+     * 获取授权信息
+     * @return StAuthInfo
+     */
+    public static StAuthInfo getStAuth(){
+        return auth.get();
+    }
+
+    /**
+     * 设置用户信息
+     * @param stAuthInfo
+     */
+    protected static void setStAuth(StAuthInfo stAuthInfo){
+         auth.set(stAuthInfo);
+    }
+
+    /**
+     * 移除用户信息
+     */
+    protected static void clearStAuth(){
+        auth.remove();
+    }
 
     /**
      * 验证授权是否正确

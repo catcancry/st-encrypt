@@ -7,7 +7,6 @@ Spring Boot接口加密，可以对返回值、参数值通过注解的方式自
 调用端发送的请求信息
 ```
 {
-  sign:md5hex(随机AES_KEY###时间搓t###appId###授权auth),使用###分隔，其中appId,授权auth可以为null
   key:RSA公钥加密（随机AES_KEY###时间搓t###appId###授权auth）,使用###分隔，其中appId,授权auth可以为null
   data:AES 加密（data数据）
 }
@@ -41,13 +40,13 @@ Spring Boot接口加密，可以对返回值、参数值通过注解的方式自
 <dependency>
     <groupId>vip.ylove</groupId>
     <artifactId>st-encrypt-sdk</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 </dependency>
 或者
 <dependency>
     <groupId>vip.ylove</groupId>
     <artifactId>st-encrypt-sdk-spring-boot-starter</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 </dependency>
 ```
 
@@ -60,7 +59,7 @@ implementation 'vip.ylove:st-encrypt-sdk:1.0'
 <dependency>
     <groupId>vip.ylove</groupId>
     <artifactId>st-encrypt-sdk-spring-boot-starter</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 </dependency>
 ```
 - **启动类Application中添加@StEnableSecurity注解**
@@ -95,18 +94,26 @@ public BaseResult encrypt(@RequestBody Object form){
     return BaseResult.success_(form);
 }
 ```
-- **若需要验证授权信息,实现接口就可以**
+- **若需要验证授权信息,实现StAbstractAuth接口就可以**
 ```
 @Service
-public class StAuth implements StAbstractAuth {
+public class StAuthService implements StAbstractAuth {
     @Override
-    public boolean auth(String appId, String auth,long t) {
+    public boolean auth(String appId, String auth, String t, StEncrypt stEncrypt) {
         //模拟进行授权验证
-        log.info("appId:{}--auth:{}",appId,auth);
-        if("123456".equals(appId) && "123456".equals(auth)){
+        log.info("默认认证方式:appId[{}]-auth[{}]-t[{}]-stEncrypt[{}]",appId, auth,t,stEncrypt);
+        if ("123456".equals(appId) && "123456".equals(auth)) {
             return true;
         }
+        log.debug("授权验证未通过");
         return false;
+    }
+
+    @Override
+    public String key() {
+       String key =  StAbstractAuth.super.key();
+       //若没有获取到动态key,则可以在此处获取静态key,例如token,jwt中等
+        return key;
     }
 }
 ```

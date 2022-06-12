@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.MediaType;
+import vip.ylove.sdk.annotation.StEncrypt;
 import vip.ylove.sdk.exception.StException;
 import vip.ylove.sdk.server.dencrypt.StAbstractAuth;
 import vip.ylove.sdk.server.dencrypt.StAbstractRequestDencrypt;
@@ -27,13 +28,10 @@ public class DecryptHttpInputMessage implements HttpInputMessage{
     private InputStream body;
 
 
-    public DecryptHttpInputMessage(Object obj,String RSAKey, StAbstractRequestDencrypt stDencrypt , StAbstractAuth stAbstractAuth, HttpInputMessage inputMessage, String privateKey) {
-        StopWatch stopWatch = new StopWatch("请求参数解密");
+    public DecryptHttpInputMessage(StEncrypt stEncrypt, String RSAKey, StAbstractRequestDencrypt stDencrypt , StAbstractAuth stAbstractAuth, HttpInputMessage inputMessage, String privateKey) {
         if (StrUtil.isBlankIfStr(privateKey)) {
             StException.throwExec(3,"privateKey is null");
         }
-        stopWatch.start("读取信息时长");
-
         this.headers = inputMessage.getHeaders();
         log.debug("当前请求类型contentType:{}",this.headers.getContentType());
         //仅仅支持APPLICATION_JSON_VALUE
@@ -44,14 +42,8 @@ public class DecryptHttpInputMessage implements HttpInputMessage{
             } catch (IOException e) {
                 StException.throwExec(7,"从body中获取信息失败");
             }
-            stopWatch.stop();
-            stopWatch.start("解密内容");
-            byte[]  bodyData = stDencrypt.dencrypt(RSAKey,content,obj,stAbstractAuth);
-            stopWatch.stop();
-            stopWatch.start("转换为原始对象");
+            byte[]  bodyData = stDencrypt.dencrypt(RSAKey,content,stEncrypt,stAbstractAuth);
             this.body = new ByteArrayInputStream(bodyData);
-            stopWatch.stop();
-            log.debug(stopWatch.prettyPrint(TimeUnit.MILLISECONDS));
         }else{
             log.error("当前请求类型contentType:{},不支持的加密头，仅仅支持-{}",this.headers.getContentType(),MediaType.APPLICATION_JSON_VALUE);
             StException.throwExec(15,"不支持的请求方式，contentType必须为application/json");

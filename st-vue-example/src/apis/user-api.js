@@ -2,6 +2,26 @@
 import httpRequest from '@/util/request.js'
 
 // 获取用户信息 加密
+export function apiGetUserInfoByGet(param) {
+    return httpRequest({
+		url: '/server/test/encrypt2',
+		method: 'get',
+		encrypt:true,
+		params: param,
+	})
+}
+
+// 获取用户信息 加密
+export function apiGetUserInfoByPost(param) {
+    return httpRequest({
+		url: '/server/test/encrypt2',
+		method: 'post',
+		encrypt:true,
+		params: param,
+	})
+}
+
+// 获取用户信息 加密
 export function apiGetUserInfo(param) {
     return httpRequest({
 		url: '/server/test/encrypt',

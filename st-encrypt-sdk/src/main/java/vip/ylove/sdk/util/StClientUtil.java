@@ -1,24 +1,21 @@
 package vip.ylove.sdk.util;
 
 import cn.hutool.core.codec.Base64;
-import cn.hutool.core.date.StopWatch;
 import cn.hutool.core.util.HexUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import cn.hutool.crypto.asymmetric.KeyType;
 import cn.hutool.crypto.asymmetric.RSA;
 import cn.hutool.crypto.asymmetric.SignAlgorithm;
-import cn.hutool.crypto.digest.DigestUtil;
 import cn.hutool.crypto.symmetric.SymmetricAlgorithm;
 import cn.hutool.json.JSONUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import vip.ylove.sdk.common.StAuthInfo;
 import vip.ylove.sdk.common.StConst;
 import vip.ylove.sdk.dto.StBody;
 import vip.ylove.sdk.dto.StResquestBody;
 import vip.ylove.sdk.exception.StException;
-
-import java.util.concurrent.TimeUnit;
 
 /**
  *  调用端加密请求参数和解密响应结果工具
@@ -48,35 +45,51 @@ public class StClientUtil {
     /**
      * 生成加密请求参数
      * @param RSAPublicKey 加密公钥
-     * @param AesKey  随机aesKey
+     * @param aesKey  随机aesKey
      * @param t       时间戳
      * @param appId   授权id 可以为空
      * @param auth    授权值 可以为空
      * @param data    加密内容
      * @return vip.ylove.sdk.dto.StResquestBody
      */
-    public static StResquestBody encrypt(String RSAPublicKey, String AesKey, long t, String appId, String auth, Object data) {
-        return encrypt( RSAPublicKey,  AesKey,  t,  appId,  auth, JSONUtil.toJsonStr(data));
+    public static StResquestBody encrypt(String RSAPublicKey, String aesKey, long t, String appId, String auth, Object data) {
+        return encrypt( RSAPublicKey,  aesKey,  t,  appId,  auth, JSONUtil.toJsonStr(data));
     }
     /**
      * 生成加密请求参数
      * @param RSAPublicKey 加密公钥
-     * @param AesKey  随机aesKey
+     * @param aesKey  随机aesKey
      * @param t       时间戳
      * @param appId   授权id 可以为空
      * @param auth    授权值 可以为空
      * @param data    加密内容
      * @return vip.ylove.sdk.dto.StResquestBody
      */
-    public static StResquestBody encrypt(String RSAPublicKey, String AesKey, long t, String appId, String auth, String data) {
-        StopWatch stopWatch = new StopWatch("客户端-加密信息");
-        stopWatch.start("生成明文key");
+    public static StResquestBody encrypt(String RSAPublicKey, String aesKey, long t, String appId, String auth, String data) {
+        StAuthUtil.setStAuth(new StAuthInfo() {
+            @Override
+            public String getAppId() {
+                return appId;
+            }
+            @Override
+            public String getAppAuth() {
+                return auth;
+            }
+            @Override
+            public String getT() {
+                return String.valueOf(t);
+            }
+            @Override
+            public String getKey() {
+                return aesKey;
+            }
+        });
         StringBuffer keyDataBuffer = new StringBuffer(20);
-        if(StrUtil.isBlankIfStr(AesKey)){
+        if(StrUtil.isBlankIfStr(aesKey)){
             StException.throwExec(4,"AesKey不能为空");
         }
 
-        keyDataBuffer.append(AesKey)
+        keyDataBuffer.append(aesKey)
                 .append(StConst.SPLIT)
                 .append(t)
                 .append(StConst.SPLIT)
@@ -85,17 +98,9 @@ public class StClientUtil {
                 .append(auth);
 
         String keyData =  keyDataBuffer.toString();
-        stopWatch.stop();
-        stopWatch.start("RSA加密key");
-        String key = SecureUtil.rsa(null,RSAPublicKey).encryptBase64(keyData,KeyType.PublicKey);
-        stopWatch.stop();
-        stopWatch.start("RSA签名key");
-        String sign =  StClientUtil.signMD5Hex(keyData);
-        stopWatch.stop();
-        stopWatch.start("AES加密内容");
-        String encryptData = SecureUtil.aes(StrUtil.bytes(AesKey)).encryptBase64(data);
-        stopWatch.stop();
-        log.debug(stopWatch.prettyPrint(TimeUnit.MILLISECONDS));
+        String key = SecureUtil.rsa(null,RSAPublicKey).encryptBase64(keyData,StConst.DEFAULT_CHARSET,KeyType.PublicKey);
+        String sign = null;//由于使用的一把公私钥加密解密,因此加签就不需要了
+        String encryptData = SecureUtil.aes(StrUtil.bytes(aesKey,StConst.DEFAULT_CHARSET)).encryptBase64(data,StConst.DEFAULT_CHARSET);
         return new StResquestBody( sign,  key,  encryptData);
     }
 
@@ -112,7 +117,7 @@ public class StClientUtil {
      * @return vip.ylove.sdk.dto.StResquestBody
      */
     public static StResquestBody encrypt(String RSAPublicKey, long t, String appId, String auth, Object data) {
-        return encrypt( RSAPublicKey, StKeyUtil.puKey(StClientUtil.createAESBase64Key()),  t,  appId,  auth, JSONUtil.toJsonStr(data));
+        return encrypt( RSAPublicKey, StClientUtil.createAESBase64Key(),  t,  appId,  auth, JSONUtil.toJsonStr(data));
     }
 
     /**
@@ -125,7 +130,7 @@ public class StClientUtil {
      * @return vip.ylove.sdk.dto.StResquestBody
      */
     public static StResquestBody encrypt(String RSAPublicKey, long t, String appId, String auth, String data) {
-        return encrypt( RSAPublicKey, StKeyUtil.puKey(StClientUtil.createAESBase64Key()),  t,  appId,  auth, data);
+        return encrypt( RSAPublicKey, StClientUtil.createAESBase64Key(),  t,  appId,  auth, data);
     }
 
     /**
@@ -136,63 +141,19 @@ public class StClientUtil {
      * @return java.lang.String
      */
     public static  String dencrypt(String publicKey, String aesKey, StBody stEncryptBody){
-        StKeyUtil.remove();
-        StopWatch stopWatch = new StopWatch("客户端-解密信息");
+        StAuthUtil.clearStAuth();
         String data = stEncryptBody.getData();
         String sign = stEncryptBody.getSign();
-
-        stopWatch.start("AES解密内容");
-        byte[] decryptData = SecureUtil.aes(StrUtil.bytes(aesKey)).decrypt(data);
-        stopWatch.stop();
-        stopWatch.start("验证签名");
+        byte[] decryptData = SecureUtil.aes(StrUtil.bytes(aesKey,StConst.DEFAULT_CHARSET)).decrypt(data);
         //签名原始内容
         boolean verify = SecureUtil.sign(SignAlgorithm.MD5withRSA,null,publicKey).verify (decryptData,HexUtil.decodeHex(sign));
         log.debug("验签结果：{}",verify);
         if(!verify){
             StException.throwExec(12,"验签失败");
         }
-        stopWatch.stop();
-        log.debug(stopWatch.prettyPrint(TimeUnit.MILLISECONDS));
         return new String(decryptData);
     }
 
-    /**
-     * 生成签名 使用简单signMD5Hex 保证效率
-     * @param data 内容
-     * @return java.lang.String
-     */
-    public static String signMD5Hex(String data){
-        return DigestUtil.md5Hex(data);
-    }
-
-    /**
-     * 生成签名 使用简单signMD5Hex 保证效率
-     * @param data 内容
-     * @return java.lang.String
-     */
-    public static String  signMD5Hex(byte[] data){
-        return DigestUtil.md5Hex(data);
-    }
-
-    /**
-     * 验证签名
-     * @param data 内容
-     * @param sign 签名
-     * @return boolean
-     */
-    public static boolean  signVerifyMD5(byte[] data,String sign){
-        return sign.equals(DigestUtil.md5Hex(data));
-    }
-    /**
-     * 验证签名
-     * @param data 内容
-     * @param sign 签名
-     * @return boolean
-     */
-    public static boolean  signVerifyMD5(String data,String sign){
-
-        return sign.equals(DigestUtil.md5Hex(data));
-    }
 
     /**
      * 解密请求结果(在线程不变的情况下可以使用这个方法，完成加密解密)
@@ -201,9 +162,7 @@ public class StClientUtil {
      * @return java.lang.String
      */
     public static  String dencrypt(String publicKey, StBody stEncryptBody){
-        String dencrypt = StClientUtil.dencrypt(publicKey, StKeyUtil.getKey(), stEncryptBody);
-        StKeyUtil.remove();
-        return dencrypt;
+        return StClientUtil.dencrypt(publicKey, StAuthUtil.getStAuth().getKey(), stEncryptBody);
     }
 
 }

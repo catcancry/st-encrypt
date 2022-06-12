@@ -8,12 +8,11 @@ import org.springframework.http.HttpInputMessage;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.RequestBodyAdvice;
-import vip.ylove.annotation.StEncrypt;
-import vip.ylove.annotation.StEncryptSkip;
 import vip.ylove.config.StConfig;
+import vip.ylove.sdk.annotation.StEncrypt;
+import vip.ylove.sdk.annotation.StEncryptSkip;
 import vip.ylove.sdk.server.dencrypt.StAbstractAuth;
 import vip.ylove.sdk.server.dencrypt.StAbstractRequestDencrypt;
-import vip.ylove.server.advice.dencrypt.DecryptHttpInputMessage;
 
 import java.lang.reflect.Type;
 
@@ -27,20 +26,23 @@ public class StServerDencryptRequestBodyAdvice implements RequestBodyAdvice {
     private Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private StConfig stConfig;
-
-    @Autowired
     private StAbstractRequestDencrypt stDencrypt;
+    @Autowired
+    private StConfig stConfig;
     @Autowired
     private StAbstractAuth stAuth ;
 
 
     @Override
-    public boolean supports(MethodParameter methodParameter, Type targetType, Class<? extends HttpMessageConverter<?>> converterType) {
-        if (methodParameter.getMethod().isAnnotationPresent(StEncrypt.class) ) {
+    public boolean supports(MethodParameter p, Type targetType, Class<? extends HttpMessageConverter<?>> converterType) {
+        StEncrypt se = p.getMethodAnnotation(StEncrypt.class);
+        if (se != null ) {
+            if(!se.req()){
+                return false;
+            }
             return true;
         }else  if(stConfig.isEnableGlobalEncrypt()){ //开启全局验证
-            if (!methodParameter.getMethod().isAnnotationPresent(StEncryptSkip.class) ){ //是否跳过方法
+            if (!p.getMethod().isAnnotationPresent(StEncryptSkip.class) ){ //是否跳过方法
                 return true;
             }
         }
@@ -56,7 +58,8 @@ public class StServerDencryptRequestBodyAdvice implements RequestBodyAdvice {
     public HttpInputMessage beforeBodyRead(HttpInputMessage inputMessage, MethodParameter parameter, Type targetType,
                                            Class<? extends HttpMessageConverter<?>> converterType){
         log.debug("线程[{}]->解密请求-->开始解密",Thread.currentThread().getId());
-        return new DecryptHttpInputMessage(parameter,stConfig.getPrivateKey(),stDencrypt,stAuth,inputMessage, stConfig.getPrivateKey());
+        StEncrypt stEncrypt = parameter.getMethod().getAnnotation(StEncrypt.class);
+        return new DecryptHttpInputMessage(stEncrypt,stConfig.getPrivateKey(),stDencrypt,stAuth,inputMessage, stConfig.getPrivateKey());
     }
 
     @Override
