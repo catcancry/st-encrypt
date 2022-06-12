@@ -59,14 +59,24 @@ public class StServerUtil {
      **/
     public static byte[] dencrypt(String privateKey, String content, StEncrypt stEncrypt, StAbstractAuth stAuth) {
         StResquestBody dencryptBody = JSONUtil.toBean(content, StResquestBody.class);
+        return dencrypt(privateKey,dencryptBody.getKey(),dencryptBody.getData(),stEncrypt,stAuth);
+    }
 
-        if (StrUtil.isBlankIfStr(dencryptBody.getData())) {
-            StException.throwExec(6, "data不能为空");
-        }
+    /**
+     * 解密请求参数
+     *
+     * @param privateKey  私钥
+     * @param encryptKey    加密key
+     * @param encryptData    加密data
+     * @param stEncrypt  扩展信息
+     * @param stAuth     鉴权接口
+     * @return java.lang.Object
+     **/
+    public static byte[] dencrypt(String privateKey, String encryptKey,String encryptData, StEncrypt stEncrypt, StAbstractAuth stAuth) {
         //当key为空时,从StAbstractAuth中获取加密key
-        if (!StrUtil.isBlankIfStr(dencryptBody.getKey())) {
+        if (!StrUtil.isBlankIfStr(encryptKey)) {
             //使用私钥解密
-            byte[] decryptKey = SecureUtil.rsa(privateKey, null).decrypt(dencryptBody.getKey(), KeyType.PrivateKey);
+            byte[] decryptKey = SecureUtil.rsa(privateKey, null).decrypt(encryptKey, KeyType.PrivateKey);
             String keyData = new String(decryptKey);
             String[] split = keyData.split(StConst.SPLIT);
             if (split.length == 4) {
@@ -114,17 +124,20 @@ public class StServerUtil {
 
         }
 
-        String key = stAuth.key();
-        if(key == null ){
-           StException.throwExec(StException.ErrorCode.NOT_GET_KEY,"获取数据加密解密key,但是未能获取到");
-           return null;
+        //加密data为空，说明只是单纯的往后端传递了一个加密key
+        byte[] decryptData = null;
+        if(!StrUtil.isBlankIfStr(encryptData)){
+            String key = stAuth.key();
+            if(key == null ){
+                StException.throwExec(StException.ErrorCode.NOT_GET_KEY,"获取数据加密解密key,但是未能获取到");
+                return null;
+            }
+            //解密body
+           decryptData = SecureUtil.aes(StrUtil.bytes(key, StConst.DEFAULT_CHARSET)).decrypt(encryptData);
+        }else{
+            decryptData = null;
         }
-        //解密body
-        byte[] decryptData = SecureUtil.aes(StrUtil.bytes(key, StConst.DEFAULT_CHARSET)).decrypt(dencryptBody.getData());
-
         return decryptData;
-
-
     }
 
 }

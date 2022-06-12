@@ -215,8 +215,9 @@ StClientUtil.createAESBase64Key = ()=>{
  * @param  appAuth 	 授权appAuth
  * @param  data      待加密的数据
  * @param  neeDynamicKey  是否使用动态key,使用的话将会在请求参数中添加加密的动态key
+ * @param  neeDynamicKey  是否使用对参数encodeURI,在get请求时使用
  */
-StClientUtil.encrypt = (publicKey,aesKey,t,appId,appAuth,data,neeDynamicKey)=>{
+StClientUtil.encrypt = (publicKey,aesKey,t,appId,appAuth,data,neeDynamicKey,needEncodeURI)=>{
 	//是否需要往后端传key
 	if(neeDynamicKey == true){
 		appId = appId == null ? "null":appId;
@@ -231,10 +232,10 @@ StClientUtil.encrypt = (publicKey,aesKey,t,appId,appAuth,data,neeDynamicKey)=>{
 		//aes加密内容
 		let dataTemp = StClientUtil.encodeAES(data,aesKey) ;
 		
-		return {key:keyTempEncrypt,data:dataTemp}
+		return {key:needEncodeURI?encodeURI(keyTempEncrypt):keyTempEncrypt ,data:needEncodeURI?encodeURI(dataTemp):dataTemp}
 	}else{
 		let dataTemp = StClientUtil.encodeAES(data,aesKey) ;
-		return {data:dataTemp}
+		return {data:needEncodeURI?encodeURI(dataTemp):dataTemp}
 	}
 }
 /**

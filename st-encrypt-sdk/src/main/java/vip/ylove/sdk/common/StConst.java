@@ -4,6 +4,12 @@ import java.nio.charset.Charset;
 
 public class StConst {
 
+    public static String SIGN ="sign";
+
+    public static String KEY ="key";
+
+    public static String DATA ="data";
+
     /**
      * 加密分隔
      */

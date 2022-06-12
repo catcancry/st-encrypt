@@ -1,5 +1,7 @@
 package vip.ylove.demo.rest;
 
+import cn.hutool.json.JSON;
+import cn.hutool.json.JSONUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -48,14 +50,14 @@ public class TestRest {
     /**
      * 加密的请求
      *  StAuthInfo auth 获取到具体的授权向信息，进行相应的权限验证，也可以使用StAuthUtil,auth获取
-     * @param form
+     * @param
      * @return
      */
     @StEncrypt(data="login")
     @RequestMapping("/encrypt2")
-    public BaseResult encrypt2(Object form){
-        log.info("服务器收到请求参数:{}",form);
-        return BaseResult.success_(form);
+    public BaseResult encrypt2(String t,String appId,String auth){
+        log.info("服务器收到请求参数:{},{},{}",t,appId,auth);
+        return BaseResult.success_(auth);
     }
 
     /**

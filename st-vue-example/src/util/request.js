@@ -29,9 +29,13 @@ service.interceptors.request.use(
 			config.aesKey = aesKey;//保存本次请求的加密key
 			if(config.method == 'get'){
 				console.info(config)
-				config.params = stClientUtil.encrypt(publicKey,aesKey,new Date().getTime(),appId,appAuth,config.params,true);
-			}else{
-				config.data = stClientUtil.encrypt(publicKey,aesKey,new Date().getTime(),appId,appAuth,config.data,true);
+				config.params = stClientUtil.encrypt(publicKey,aesKey,new Date().getTime(),appId,appAuth,config.params,true,true);
+			}else if(config.method == 'post'){
+				if(config.params != null){
+					config.params = stClientUtil.encrypt(publicKey,aesKey,new Date().getTime(),appId,appAuth,config.params,true);
+				}else{
+					config.data = stClientUtil.encrypt(publicKey,aesKey,new Date().getTime(),appId,appAuth,config.data,true);
+				}
 			}	
 		}
 		return config
