@@ -28,12 +28,14 @@ service.interceptors.request.use(
 			let aesKey = stClientUtil.createAESBase64Key();
 			config.aesKey = aesKey;//保存本次请求的加密key
 			if(config.method == 'get'){
-				console.info(config)
+				console.info("请求参数:",config.params)
 				config.params = stClientUtil.encrypt(publicKey,aesKey,new Date().getTime(),appId,appAuth,config.params,true,true);
 			}else if(config.method == 'post'){
 				if(config.params != null){
+					console.info("请求参数:",config.params)
 					config.params = stClientUtil.encrypt(publicKey,aesKey,new Date().getTime(),appId,appAuth,config.params,true);
 				}else{
+					console.info("请求参数:",config.data)
 					config.data = stClientUtil.encrypt(publicKey,aesKey,new Date().getTime(),appId,appAuth,config.data,true);
 				}
 			}	

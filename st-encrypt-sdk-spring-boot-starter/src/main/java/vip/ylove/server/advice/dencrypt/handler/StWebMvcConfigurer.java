@@ -12,7 +12,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class StWebMvcConfigurer implements WebMvcConfigurer {
 
     @Autowired
-    private StServerDencryNotRequestBodyHandlerIntercepter serverDencryNotRequestBodyHandlerIntercepter;
+    private StRequestHandlerIntercepter serverDencryNotRequestBodyHandlerIntercepter;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import vip.ylove.config.StConfig;
 import vip.ylove.demo.common.BaseResult;
+import vip.ylove.demo.rest.form.TestForm;
 import vip.ylove.sdk.annotation.StEncrypt;
 import vip.ylove.sdk.util.StAuthUtil;
 import vip.ylove.sdk.util.StClientUtil;
@@ -28,7 +29,7 @@ public class TestRest {
      * @return
      */
     @PostMapping("/noEncrypt")
-    public BaseResult noEncrypt(@RequestBody Object form){
+    public BaseResult noEncrypt(@RequestBody TestForm form){
         return BaseResult.success_(form);
     }
 
@@ -42,7 +43,7 @@ public class TestRest {
      */
     @StEncrypt(data="login")
     @PostMapping("/encrypt")
-    public BaseResult encrypt(@RequestBody Object form){
+    public BaseResult encrypt(@RequestBody TestForm form){
         log.info("服务器收到请求参数:{},请求授权信息auth:{}",form, StAuthUtil.getStAuth());
         return BaseResult.success_(form);
     }
@@ -55,9 +56,9 @@ public class TestRest {
      */
     @StEncrypt(data="login")
     @RequestMapping("/encrypt2")
-    public BaseResult encrypt2(String t,String appId,String auth){
-        log.info("服务器收到请求参数:{},{},{}",t,appId,auth);
-        return BaseResult.success_(auth);
+    public BaseResult encrypt2(TestForm form){
+        log.info("服务器收到请求参数:{}",form);
+        return BaseResult.success_(form);
     }
 
     /**

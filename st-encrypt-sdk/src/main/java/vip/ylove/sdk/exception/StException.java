@@ -20,10 +20,19 @@ public class StException extends   RuntimeException{
     public class ErrorCode{
 
         /**
+         * 不支持的请求头类型
+         **/
+        public final static int NOT_SUPPORT_CONTENT_TYPE = 15;
+
+        /**
          * 未获取到数据加密解密的key
          */
         public final static int NOT_GET_KEY = 31;
 
+        /**
+         * 未知的錯誤
+         */
+        public final static int REQUEST_DENCRYPT_UNKNOWN_ERROR = 33;
 
     }
 

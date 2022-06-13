@@ -218,6 +218,19 @@ StClientUtil.createAESBase64Key = ()=>{
  * @param  neeDynamicKey  是否使用对参数encodeURI,在get请求时使用
  */
 StClientUtil.encrypt = (publicKey,aesKey,t,appId,appAuth,data,neeDynamicKey,needEncodeURI)=>{
+	//验证加密数据是否为空
+	if(data != null){
+		//不是string类型则判断是否值
+		if (typeof data !== 'string') {
+		 if(Object.keys(data).length === 0 ){
+		 	data = null;
+		 }
+		}else{
+			if(data.trim() == null || data.trim() ==''){
+				data = null;
+			}
+		}
+	}
 	//是否需要往后端传key
 	if(neeDynamicKey == true){
 		appId = appId == null ? "null":appId;
@@ -227,15 +240,20 @@ StClientUtil.encrypt = (publicKey,aesKey,t,appId,appAuth,data,neeDynamicKey,need
 		//rsa加密key
 		let keyTempEncrypt = StClientUtil.encodeRSA(keyTemp,publicKey);
 		
-		//进行内容摘要
-		//let sign = md5(keyTemp);
-		//aes加密内容
-		let dataTemp = StClientUtil.encodeAES(data,aesKey) ;
-		
-		return {key:needEncodeURI?encodeURI(keyTempEncrypt):keyTempEncrypt ,data:needEncodeURI?encodeURI(dataTemp):dataTemp}
+		if(data == null){
+			return {key:needEncodeURI?encodeURI(keyTempEncrypt):keyTempEncrypt}
+		}else{
+			//aes加密内容
+			let dataTemp = data?StClientUtil.encodeAES(data,aesKey):null ;
+			return {key:needEncodeURI?encodeURI(keyTempEncrypt):keyTempEncrypt ,data:needEncodeURI?encodeURI(dataTemp):dataTemp}
+		}
 	}else{
-		let dataTemp = StClientUtil.encodeAES(data,aesKey) ;
-		return {data:needEncodeURI?encodeURI(dataTemp):dataTemp}
+		if(data == null){
+			return {};
+		}else{
+			let dataTemp = StClientUtil.encodeAES(data,aesKey) ;
+			return {data:needEncodeURI?encodeURI(dataTemp):dataTemp}
+		}
 	}
 }
 /**
