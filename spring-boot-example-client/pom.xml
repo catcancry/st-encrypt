@@ -103,7 +103,7 @@
         <!--添加鉴权功能 end-->
         <dependency>
             <groupId>vip.ylove</groupId>
-            <artifactId>st-encrypt-sdk-spring-boot-starter</artifactId>
+            <artifactId>st-encrypt-sdk</artifactId>
             <version>${st-encrypt-sdk.version}</version>
         </dependency>
 

@@ -1,16 +1,15 @@
 package vip.ylove.demo.client.rest;
 
 import cn.hutool.core.date.StopWatch;
-import cn.hutool.crypto.SecureUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import vip.ylove.config.StConfig;
 import vip.ylove.demo.client.common.BaseResult;
 import vip.ylove.demo.client.common.EncryptResult;
+import vip.ylove.demo.client.config.StEncryptConfig;
 import vip.ylove.demo.client.service.TestServerService;
 import vip.ylove.sdk.dto.StResquestBody;
 import vip.ylove.sdk.util.StClientUtil;
@@ -23,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 public class TestClientRest {
 
     @Autowired
-    private StConfig stConfig;
+    private StEncryptConfig stConfig;
 
     @Autowired
     private TestServerService serverService;

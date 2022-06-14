@@ -1,4 +1,4 @@
-package vip.ylove.server.advice.dencrypt.handler;
+package vip.ylove.server.advice.dencrypt;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
@@ -20,6 +20,7 @@ import vip.ylove.sdk.server.dencrypt.StAbstractRequestDencrypt;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 @Component
@@ -81,32 +82,7 @@ public class StRequestHandlerIntercepter implements HandlerInterceptor {
                 return;
             }
             if (ct.startsWith(MediaType.APPLICATION_FORM_URLENCODED_VALUE)) {
-                String body = requestWrapper.getBody();
-                if (!StrUtil.isBlankIfStr(body)) {
-                    String[] ps = body.split("&");
-                    if (ps != null) {
-                        String key = null;
-                        String data = null;
-                        for (int i = 0; i < ps.length; i++) {
-                            String[] p = ps[i].split("=");
-                            if (StConst.KEY.equals(p[0])) {
-                                key = p[1];
-                            } else if (StConst.DATA.equals(p[0])) {
-                                data = p[1];
-                            }
-                        }
-                        byte[] dencrypt = stDencrypt.dencrypt(stConfig.getPrivateKey(), key, data, stEncrypt, stAuth);
-                        Map<String, Object> params = JSONUtil.toBean(new String(dencrypt, StConst.DEFAULT_CHARSET), Map.class);
-                        StringBuffer buffer = new StringBuffer();
-                        params.entrySet().forEach(e -> {
-                            buffer.append(e.getKey()).append("=").append(e.getValue()).append("&");
-                        });
-                        if (buffer.length() > 0) {
-                            buffer.substring(0, buffer.length() - 1);
-                        }
-                        System.out.println(buffer.toString());
-                    }
-                }
+                this.updateByBodyParam(stEncrypt,request);
                 return;
             }
             log.error("当前请求类型contentType:{},不支持的加密头,请求方式:{}", ct,request.getMethod());
@@ -117,7 +93,53 @@ public class StRequestHandlerIntercepter implements HandlerInterceptor {
             StException.throwExec(StException.ErrorCode.REQUEST_DENCRYPT_UNKNOWN_ERROR, "解密请求参数发生未知异常:" + e.getMessage());
         }
     }
-
+    /**
+     * 解码放在body参数中的加密信息
+     **/
+    private void updateByBodyParam(StEncrypt stEncrypt, HttpServletRequest request) {
+        StHttpServletRequestWrapper requestWrapper = (StHttpServletRequestWrapper) request;
+        String body = requestWrapper.getBody();
+        if (!StrUtil.isBlankIfStr(body)) {
+            String[] ps = body.split("&");
+            if (ps != null) {
+                String key = null;
+                String data = null;
+                for (int i = 0; i < ps.length; i++) {
+                    String[] p = ps[i].split("=");
+                    if(p != null && p.length == 2){
+                        if (StConst.KEY.equals(p[0])) {
+                            try {
+                                key = java.net.URLDecoder.decode(p[1], StConst.DEFAULT_CHARSET.name());
+                            } catch (UnsupportedEncodingException e) {
+                                e.printStackTrace();
+                            }
+                        } else if (StConst.DATA.equals(p[0])) {
+                            try {
+                                data = java.net.URLDecoder.decode(p[1], StConst.DEFAULT_CHARSET.name());
+                            } catch (UnsupportedEncodingException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }
+                byte[] dencrypt = stDencrypt.dencrypt(stConfig.getPrivateKey(), key, data, stEncrypt, stAuth);
+                Map<String, Object> params = JSONUtil.toBean(new String(dencrypt, StConst.DEFAULT_CHARSET), Map.class);
+                StringBuffer buffer = new StringBuffer();
+                params.entrySet().forEach(e -> {
+                    buffer.append(e.getKey()).append("=").append(e.getValue()).append("&");
+                });
+                String paramsData = null;
+                if (buffer.length() > 0) {
+                    paramsData = buffer.substring(0, buffer.length() - 1);
+                }
+                requestWrapper.setBody("t=1");
+            }
+        }
+        return;
+    }
+    /**
+     * 解码放在url参数中的加密信息
+     **/
     private void updateByParam(StEncrypt stEncrypt, HttpServletRequest request) {
         StHttpServletRequestWrapper requestWrapper = (StHttpServletRequestWrapper) request;
         String key = request.getParameter(StConst.KEY);
@@ -134,7 +156,9 @@ public class StRequestHandlerIntercepter implements HandlerInterceptor {
             requestWrapper.addParameters(params);
         }
     }
-
+    /**
+     * post json参数获取并解码
+     **/
     private void updateByBodyJson(StEncrypt stEncrypt, HttpServletRequest request) {
         StHttpServletRequestWrapper requestWrapper = (StHttpServletRequestWrapper) request;
         String body = requestWrapper.getBody();

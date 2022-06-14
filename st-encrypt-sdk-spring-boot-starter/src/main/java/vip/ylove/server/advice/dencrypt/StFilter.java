@@ -1,4 +1,4 @@
-package vip.ylove.server.advice.dencrypt.handler;
+package vip.ylove.server.advice.dencrypt;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +17,7 @@ public class StFilter implements Filter {
         StHttpServletRequestWrapper customHttpServletRequestWrapper = null;
         try {
             HttpServletRequest req = (HttpServletRequest)request;
-            customHttpServletRequestWrapper = new StHttpServletRequestWrapper(req);
+            customHttpServletRequestWrapper = null;// new StHttpServletRequestWrapper(req);
         }catch (Exception e){
             log.warn("StHttpServletRequestWrapper Error:", e);
         }

@@ -16,6 +16,7 @@ export function apiGetUserInfoByPost(param) {
     return httpRequest({
 		url: '/server/test/encrypt2',
 		method: 'post',
+		headers:{'Content-Type':'application/x-www-form-urlencoded'},
 		encrypt:true,
 		params: param,
 	})

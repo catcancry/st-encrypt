@@ -1,4 +1,4 @@
-package vip.ylove.server.advice.dencrypt.handler;
+package vip.ylove.server.advice.dencrypt;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -12,11 +12,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class StWebMvcConfigurer implements WebMvcConfigurer {
 
     @Autowired
-    private StRequestHandlerIntercepter serverDencryNotRequestBodyHandlerIntercepter;
+    private StRequestHandlerIntercepter stRequestHandlerIntercepter;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(serverDencryNotRequestBodyHandlerIntercepter);
+        registry.addInterceptor(stRequestHandlerIntercepter);
     }
 
     @Bean

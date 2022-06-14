@@ -1,5 +1,6 @@
-package vip.ylove.server.advice.dencrypt.handler;
+package vip.ylove.server.advice.dencrypt;
 
+import org.apache.commons.io.IOUtils;
 import vip.ylove.sdk.common.StConst;
 
 import javax.servlet.ReadListener;
@@ -21,22 +22,12 @@ public class StHttpServletRequestWrapper extends HttpServletRequestWrapper {
     // 解析request的inputStream(即body)数据，转成字符串
     public StHttpServletRequestWrapper(HttpServletRequest request) {
         super(request);
-        StringBuilder stringBuilder = new StringBuilder();
-        BufferedReader bufferedReader = null;
         InputStream inputStream = null;
         try {
             inputStream = request.getInputStream();
-            if (inputStream != null) {
-                bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-                char[] charBuffer = new char[128];
-                int bytesRead = -1;
-                while ((bytesRead = bufferedReader.read(charBuffer)) > 0) {
-                    stringBuilder.append(charBuffer, 0, bytesRead);
-                }
-            } else {
-                stringBuilder.append("");
-            }
+            this.body = IOUtils.toString(inputStream,StConst.DEFAULT_CHARSET);
         } catch (IOException ex) {
+            ex.printStackTrace();
         } finally {
             if (inputStream != null) {
                 try {
@@ -46,17 +37,7 @@ public class StHttpServletRequestWrapper extends HttpServletRequestWrapper {
                     e.printStackTrace();
                 }
             }
-            if (bufferedReader != null) {
-                try {
-                    bufferedReader.close();
-                }
-                catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
         }
-        body = stringBuilder.toString();
-
         this.params.putAll(request.getParameterMap());
     }
     @Override

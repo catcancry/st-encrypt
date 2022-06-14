@@ -44,7 +44,7 @@ public class TestRest {
     @StEncrypt(data="login")
     @PostMapping("/encrypt")
     public BaseResult encrypt(@RequestBody TestForm form){
-        log.info("服务器收到请求参数:{},请求授权信息auth:{}",form, StAuthUtil.getStAuth());
+        log.info("服务器收到post json请求参数:{}",form);
         return BaseResult.success_(form);
     }
 
@@ -54,10 +54,10 @@ public class TestRest {
      * @param
      * @return
      */
-    @StEncrypt(data="login")
+    @StEncrypt(data="login",req = false)
     @RequestMapping("/encrypt2")
     public BaseResult encrypt2(TestForm form){
-        log.info("服务器收到请求参数:{}",form);
+        log.info("服务器收到表单或者get请求参数:{}",form);
         return BaseResult.success_(form);
     }
 
