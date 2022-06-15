@@ -1,6 +1,6 @@
 package vip.ylove.server.advice.dencrypt;
 
-import org.apache.commons.io.IOUtils;
+import cn.hutool.core.io.IoUtil;
 import vip.ylove.sdk.common.StConst;
 
 import javax.servlet.ReadListener;
@@ -15,35 +15,27 @@ import java.util.Vector;
 
 public class StHttpServletRequestWrapper extends HttpServletRequestWrapper {
 
+
     private Map<String, String[]> params = new HashMap<>();
 
     // 保存request body的数据
-    private String body;
+    private byte[] body;
+
     // 解析request的inputStream(即body)数据，转成字符串
     public StHttpServletRequestWrapper(HttpServletRequest request) {
         super(request);
-        InputStream inputStream = null;
-        try {
-            inputStream = request.getInputStream();
-            this.body = IOUtils.toString(inputStream,StConst.DEFAULT_CHARSET);
+        //先获取参数，然后再获取流
+        this.params.putAll(request.getParameterMap());
+        try(InputStream inputStream  = request.getInputStream()){
+            this.body  = IoUtil.readBytes(inputStream);
         } catch (IOException ex) {
             ex.printStackTrace();
-        } finally {
-            if (inputStream != null) {
-                try {
-                    inputStream.close();
-                }
-                catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
         }
-        this.params.putAll(request.getParameterMap());
     }
     @Override
     public ServletInputStream getInputStream() throws IOException {
-        final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(body.getBytes());
-        ServletInputStream servletInputStream = new ServletInputStream() {
+        final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(body);
+        return new ServletInputStream() {
             @Override
             public boolean isFinished() {
                 return false;
@@ -60,18 +52,11 @@ public class StHttpServletRequestWrapper extends HttpServletRequestWrapper {
                 return byteArrayInputStream.read();
             }
         };
-        return servletInputStream;
     }
+
     @Override
     public BufferedReader getReader() throws IOException {
         return new BufferedReader(new InputStreamReader(this.getInputStream()));
-    }
-    public String getBody() {
-        return this.body;
-    }
-    // 赋值给body字段
-    public void setBody(String body) {
-        this.body = body;
     }
 
     @Override
@@ -97,26 +82,44 @@ public class StHttpServletRequestWrapper extends HttpServletRequestWrapper {
         return values;
     }
 
+    /**
+     * 获取body
+     **/
+    public byte[] getBody() {
+        return this.body;
+    }
+    /**
+     * 设置负载
+     **/
+    public void setBody(byte[] body) {
+        this.body = body;
+    }
+
+
+    /**
+     * 移除加密参数
+     **/
     public void removeStEncryptParams() {
         params.remove(StConst.KEY);
         params.remove(StConst.DATA);
         params.remove(StConst.SIGN);
     }
 
+    /**
+     * 将解密后的参数回填
+     **/
     public void addParameters(Map<String, Object> otherParams) {
-        for (Map.Entry<String, Object> entry : otherParams.entrySet()) {
-            addParameter(entry.getKey(), entry.getValue());
-        }
-    }
-
-    public void addParameter(String name, Object value) {
-        if (value != null) {
-            if (value instanceof String[]) {
-                params.put(name, (String[]) value);
-            } else if (value instanceof String) {
-                params.put(name, new String[]{(String) value});
-            } else {
-                params.put(name, new String[]{String.valueOf(value)});
+        if(otherParams != null){
+            for (Map.Entry<String, Object> entry : otherParams.entrySet()) {
+                if( entry.getValue() != null){
+                    if (entry.getValue() instanceof String[]) {
+                        params.put(entry.getKey(), (String[]) entry.getValue());
+                    } else if (entry.getValue() instanceof String) {
+                        params.put(entry.getKey(), new String[]{(String) entry.getValue()});
+                    } else {
+                        params.put(entry.getKey(), new String[]{String.valueOf(entry.getValue())});
+                    }
+                }
             }
         }
     }

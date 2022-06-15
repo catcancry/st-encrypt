@@ -42,7 +42,7 @@ sa-token:
 
 logging:
   level:
-    vip.ylove: debug
+    vip.ylove: info
 
 cors:
   allowOrigin:

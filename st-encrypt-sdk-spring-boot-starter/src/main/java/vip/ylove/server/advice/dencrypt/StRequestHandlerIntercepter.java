@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
 import org.springframework.web.servlet.HandlerInterceptor;
 import vip.ylove.config.StConfig;
 import vip.ylove.sdk.annotation.StEncrypt;
@@ -34,6 +35,10 @@ public class StRequestHandlerIntercepter implements HandlerInterceptor {
     private StConfig stConfig;
     @Autowired
     private StAbstractAuth stAuth;
+    /**
+     *  默认的空body
+     **/
+    private static final  byte[] nullBody = new String("{}").getBytes(StConst.DEFAULT_CHARSET);
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -61,82 +66,53 @@ public class StRequestHandlerIntercepter implements HandlerInterceptor {
     }
 
     private void dencryptRequest(StEncrypt stEncrypt, HttpServletRequest request) {
-        StHttpServletRequestWrapper requestWrapper = (StHttpServletRequestWrapper) request;
         String ct = request.getContentType();
         try {
             if ("GET".equals(request.getMethod())) {
                 this.updateByParam(stEncrypt, request);
                 return;
             }
-            //如果是文件上传请求,直接跳过，暂时不支持加密解密
-            if (ServletFileUpload.isMultipartContent(request)) {
-                StException.throwExec(StException.ErrorCode.REQUEST_DENCRYPT_UNKNOWN_ERROR, "暂时不支持上传文件请求进行加密解密");
-                return;
-            }
             if (ct == null) {
                 this.updateByParam(stEncrypt, request);
                 return;
             }
-            if (ct.startsWith(MediaType.APPLICATION_JSON_VALUE)) {
-                this.updateByBodyJson(stEncrypt, request);
+            if (ct.contains(MediaType.APPLICATION_FORM_URLENCODED_VALUE)) {
+                this.updateByParam(stEncrypt,request);
                 return;
             }
-            if (ct.startsWith(MediaType.APPLICATION_FORM_URLENCODED_VALUE)) {
-                this.updateByBodyParam(stEncrypt,request);
+            //如果是文件上传请求,直接跳过，暂时不支持加密解密
+            if (ServletFileUpload.isMultipartContent(request)) {
+                this.updateByUploadForm(stEncrypt,request);
+                return;
+            }
+            if (ct.contains(MediaType.APPLICATION_JSON_VALUE)) {
+                this.updateByBodyJson(stEncrypt, request);
                 return;
             }
             log.error("当前请求类型contentType:{},不支持的加密头,请求方式:{}", ct,request.getMethod());
             StException.throwExec(StException.ErrorCode.NOT_SUPPORT_CONTENT_TYPE, "当前请求类型contentType:" + ct + ",不支持的加密头,请求方式:"+ request.getMethod() );
+        } catch (StException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
             log.error("解密请求参数发生异常:", e.getMessage());
             StException.throwExec(StException.ErrorCode.REQUEST_DENCRYPT_UNKNOWN_ERROR, "解密请求参数发生未知异常:" + e.getMessage());
         }
     }
+
     /**
-     * 解码放在body参数中的加密信息
+     * 表单提交
      **/
-    private void updateByBodyParam(StEncrypt stEncrypt, HttpServletRequest request) {
-        StHttpServletRequestWrapper requestWrapper = (StHttpServletRequestWrapper) request;
-        String body = requestWrapper.getBody();
-        if (!StrUtil.isBlankIfStr(body)) {
-            String[] ps = body.split("&");
-            if (ps != null) {
-                String key = null;
-                String data = null;
-                for (int i = 0; i < ps.length; i++) {
-                    String[] p = ps[i].split("=");
-                    if(p != null && p.length == 2){
-                        if (StConst.KEY.equals(p[0])) {
-                            try {
-                                key = java.net.URLDecoder.decode(p[1], StConst.DEFAULT_CHARSET.name());
-                            } catch (UnsupportedEncodingException e) {
-                                e.printStackTrace();
-                            }
-                        } else if (StConst.DATA.equals(p[0])) {
-                            try {
-                                data = java.net.URLDecoder.decode(p[1], StConst.DEFAULT_CHARSET.name());
-                            } catch (UnsupportedEncodingException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-                }
-                byte[] dencrypt = stDencrypt.dencrypt(stConfig.getPrivateKey(), key, data, stEncrypt, stAuth);
-                Map<String, Object> params = JSONUtil.toBean(new String(dencrypt, StConst.DEFAULT_CHARSET), Map.class);
-                StringBuffer buffer = new StringBuffer();
-                params.entrySet().forEach(e -> {
-                    buffer.append(e.getKey()).append("=").append(e.getValue()).append("&");
-                });
-                String paramsData = null;
-                if (buffer.length() > 0) {
-                    paramsData = buffer.substring(0, buffer.length() - 1);
-                }
-                requestWrapper.setBody("t=1");
-            }
+    private void updateByUploadForm(StEncrypt stEncrypt, HttpServletRequest request) {
+        if(request instanceof StandardMultipartHttpServletRequest){
+            System.out.println("这是个文件上传请求");
+            
+
+        }else if(request instanceof StHttpServletRequestWrapper){
+            System.out.println("一般文件上传请求");
         }
-        return;
     }
+
     /**
      * 解码放在url参数中的加密信息
      **/
@@ -161,13 +137,12 @@ public class StRequestHandlerIntercepter implements HandlerInterceptor {
      **/
     private void updateByBodyJson(StEncrypt stEncrypt, HttpServletRequest request) {
         StHttpServletRequestWrapper requestWrapper = (StHttpServletRequestWrapper) request;
-        String body = requestWrapper.getBody();
+        String body = new String(requestWrapper.getBody(),StConst.DEFAULT_CHARSET);
         byte[] bodyData = stDencrypt.dencrypt(stConfig.getPrivateKey(), body, stEncrypt, stAuth);
         if (bodyData == null) {
-            requestWrapper.setBody("{}");
+            requestWrapper.setBody(nullBody);
         } else {
-            String deBody = new String(bodyData);
-            requestWrapper.setBody(deBody);
+            requestWrapper.setBody(bodyData);
         }
     }
 

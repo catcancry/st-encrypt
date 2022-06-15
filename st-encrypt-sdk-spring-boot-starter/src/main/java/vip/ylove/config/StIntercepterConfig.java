@@ -1,4 +1,4 @@
-package vip.ylove.server.advice.dencrypt;
+package vip.ylove.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -7,9 +7,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import vip.ylove.server.advice.dencrypt.StRequestHandlerIntercepter;
 
 @Configuration
-public class StWebMvcConfigurer implements WebMvcConfigurer {
+public class StIntercepterConfig implements WebMvcConfigurer {
 
     @Autowired
     private StRequestHandlerIntercepter stRequestHandlerIntercepter;
@@ -17,16 +18,5 @@ public class StWebMvcConfigurer implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(stRequestHandlerIntercepter);
-    }
-
-    @Bean
-    public FilterRegistrationBean servletRegistrationBean() {
-        StFilter userInfoFilter = new StFilter();
-        FilterRegistrationBean<StFilter> bean = new FilterRegistrationBean<>();
-        bean.setFilter(userInfoFilter);
-        bean.setName("st-encrypt-filter");
-        bean.addUrlPatterns("/*");
-        bean.setOrder(Ordered.LOWEST_PRECEDENCE);
-        return bean;
     }
 }

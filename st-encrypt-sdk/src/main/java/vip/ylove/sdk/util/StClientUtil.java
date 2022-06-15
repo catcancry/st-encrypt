@@ -17,6 +17,8 @@ import vip.ylove.sdk.dto.StBody;
 import vip.ylove.sdk.dto.StResquestBody;
 import vip.ylove.sdk.exception.StException;
 
+import java.util.HashMap;
+
 /**
  *  调用端加密请求参数和解密响应结果工具
  * @author catcancry
@@ -26,12 +28,46 @@ public class StClientUtil {
     private static Logger log = LoggerFactory.getLogger(StClientUtil.class);
 
     /**
-     * 在控制台打印RSA 公私钥
+     * key 对象,包含了一对被base64公私钥字符
      **/
-    public static void createRSABase64Key(){
+    public static class Key{
+        /**
+         * 私钥
+         **/
+        private String privateKey;
+        /**
+         * 公钥
+         **/
+        private String publicKey;
+        public String getPrivateKey() {
+            return privateKey;
+        }
+
+        public void setPrivateKey(String privateKey) {
+            this.privateKey = privateKey;
+        }
+
+        public String getPublicKey() {
+            return publicKey;
+        }
+
+        public void setPublicKey(String publicKey) {
+            this.publicKey = publicKey;
+        }
+
+        public Key(String privateKey, String publicKey) {
+            this.privateKey = privateKey;
+            this.publicKey = publicKey;
+        }
+    }
+    /**
+     * 生成一对RSA公私钥
+     **/
+    public static Key createRSABase64Key(){
         RSA rsa = new RSA();
         log.info("privateKey:\n{}",rsa.getPrivateKeyBase64());
         log.info("publicKey:\n{}",rsa.getPublicKeyBase64());
+        return new Key(rsa.getPrivateKeyBase64(),rsa.getPublicKeyBase64());
     }
 
     /**

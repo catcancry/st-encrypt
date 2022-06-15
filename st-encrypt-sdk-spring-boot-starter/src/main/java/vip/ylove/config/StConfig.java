@@ -31,6 +31,16 @@ public class StConfig {
     private String appAuth;
 
     /**
+     * 加密filter顺序
+     **/
+    private Integer stFilterOrder;
+
+    /**
+     * 跳过的路径
+     **/
+    private String excludesUrl;
+
+    /**
      * 开启全局加密解密
      **/
     private boolean enableGlobalEncrypt =  false;
@@ -73,5 +83,21 @@ public class StConfig {
 
     public void setEnableGlobalEncrypt(boolean enableGlobalEncrypt) {
         this.enableGlobalEncrypt = enableGlobalEncrypt;
+    }
+
+    public String getExcludesUrl() {
+        return excludesUrl;
+    }
+
+    public void setExcludesUrl(String excludesUrl) {
+        this.excludesUrl = excludesUrl;
+    }
+
+    public Integer getStFilterOrder() {
+        return stFilterOrder;
+    }
+
+    public void setStFilterOrder(Integer stFilterOrder) {
+        this.stFilterOrder = stFilterOrder;
     }
 }
