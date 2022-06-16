@@ -2,6 +2,11 @@ package vip.ylove.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * 配置参数
@@ -30,20 +35,105 @@ public class StConfig {
      */
     private String appAuth;
 
-    /**
-     * 加密filter顺序
-     **/
-    private Integer stFilterOrder;
-
-    /**
-     * 跳过的路径
-     **/
-    private String excludesUrl;
 
     /**
      * 开启全局加密解密
      **/
     private boolean enableGlobalEncrypt =  false;
+
+    /**
+     * 配置intercepter相关参数
+     */
+    private StIntercepterConfig stIntercepterConfig = new StIntercepterConfig();
+    /**
+     * 配置filter相关参数
+     */
+    private StFilterConfig stFilterConfig = new StFilterConfig();
+
+    /**
+     * st-filter配置
+     */
+    public class StFilterConfig {
+
+        /**
+         *  默认 st-filter-name
+         */
+        private String name ="st-filter-name";
+
+        /**
+         * 默认 Ordered.LOWEST_PRECEDENCE 2147483647
+         */
+        private int order = Ordered.LOWEST_PRECEDENCE;
+        /**
+         * 默认 /*
+         */
+        private String [] urlPatterns = new String[]{"/*"};
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public int getOrder() {
+            return order;
+        }
+
+        public void setOrder(int order) {
+            this.order = order;
+        }
+
+        public String[] getUrlPatterns() {
+            return urlPatterns;
+        }
+
+        public void setUrlPatterns(String[] urlPatterns) {
+            this.urlPatterns = urlPatterns;
+        }
+    }
+    /**
+     * st-intercepter配置
+     */
+    public class StIntercepterConfig {
+        /**
+         * 默认 null
+         */
+        private final List<String> patterns = new ArrayList();
+        /**
+         * 默认 null
+         */
+        private final List<String> includePatterns = new ArrayList();
+        /**
+         * 默认 null
+         */
+        private final List<String> excludePatterns = new ArrayList();
+        /**
+         * 默认 0
+         */
+        private int order = 0;
+
+        public List<String> getPatterns() {
+            return patterns;
+        }
+
+        public List<String> getIncludePatterns() {
+            return includePatterns;
+        }
+
+        public List<String> getExcludePatterns() {
+            return excludePatterns;
+        }
+
+        public int getOrder() {
+            return order;
+        }
+
+        public void setOrder(int order) {
+            this.order = order;
+        }
+    }
 
     public String getPrivateKey() {
         return privateKey;
@@ -85,19 +175,19 @@ public class StConfig {
         this.enableGlobalEncrypt = enableGlobalEncrypt;
     }
 
-    public String getExcludesUrl() {
-        return excludesUrl;
+    public StIntercepterConfig getStIntercepterConfig() {
+        return stIntercepterConfig;
     }
 
-    public void setExcludesUrl(String excludesUrl) {
-        this.excludesUrl = excludesUrl;
+    public void setStIntercepterConfig(StIntercepterConfig stIntercepterConfig) {
+        this.stIntercepterConfig = stIntercepterConfig;
     }
 
-    public Integer getStFilterOrder() {
-        return stFilterOrder;
+    public StFilterConfig getStFilterConfig() {
+        return stFilterConfig;
     }
 
-    public void setStFilterOrder(Integer stFilterOrder) {
-        this.stFilterOrder = stFilterOrder;
+    public void setStFilterConfig(StFilterConfig stFilterConfig) {
+        this.stFilterConfig = stFilterConfig;
     }
 }

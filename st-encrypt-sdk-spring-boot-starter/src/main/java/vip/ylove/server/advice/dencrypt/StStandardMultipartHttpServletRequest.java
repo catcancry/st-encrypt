@@ -1,6 +1,7 @@
 package vip.ylove.server.advice.dencrypt;
 
 import cn.hutool.core.io.IoUtil;
+import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
 import vip.ylove.sdk.common.StConst;
 
 import javax.servlet.ReadListener;
@@ -13,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
-public class StHttpServletRequestWrapper extends HttpServletRequestWrapper implements StFilterWrapper {
+public class StStandardMultipartHttpServletRequest extends StandardMultipartHttpServletRequest implements StFilterWrapper {
 
 
     private Map<String, String[]> params = new HashMap<>();
@@ -22,7 +23,7 @@ public class StHttpServletRequestWrapper extends HttpServletRequestWrapper imple
     private byte[] body;
 
     // 解析request的inputStream(即body)数据，转成字符串
-    public StHttpServletRequestWrapper(HttpServletRequest request) {
+    public StStandardMultipartHttpServletRequest(HttpServletRequest request) {
         super(request);
         //先获取参数，然后再获取流
         this.params.putAll(request.getParameterMap());
@@ -80,6 +81,14 @@ public class StHttpServletRequestWrapper extends HttpServletRequestWrapper imple
             return null;
         }
         return values;
+    }
+
+    public String getParameterValue(String name) {
+        String[] values = params.get(name);
+        if (values == null || values.length == 0) {
+            return null;
+        }
+        return values[0];
     }
 
     /**

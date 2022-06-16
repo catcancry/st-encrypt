@@ -33,7 +33,10 @@ public class StException extends   RuntimeException{
          * 未知的錯誤
          */
         public final static int REQUEST_DENCRYPT_UNKNOWN_ERROR = 33;
-
+        /**
+         *  上传文件md5验证失败
+         */
+        public static final int UPLOAD_FILE_MD5_VERIFICATION_ERROR = 36;
     }
 
 }

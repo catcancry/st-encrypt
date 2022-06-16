@@ -15,17 +15,13 @@ public class StFilterConfig {
 
     @Bean
     public FilterRegistrationBean<StFilter> xssFilterRegistrationBean() {
-        StFilter stFilter  = new StFilter();
+        StFilter stFilter = new StFilter();
         FilterRegistrationBean<StFilter> registration = new FilterRegistrationBean<>();
         registration.setFilter(stFilter);
-        registration.setName("st-encrypt-filter");
-        registration.addUrlPatterns("/*");
-        if(config.getStFilterOrder() != null){
-            registration.setOrder(config.getStFilterOrder());
-        }else{
-            registration.setOrder(Ordered.LOWEST_PRECEDENCE);
-        }
+        registration.setName(config.getStFilterConfig().getName());
+        registration.addUrlPatterns(config.getStFilterConfig().getUrlPatterns());
+        registration.setOrder(config.getStFilterConfig().getOrder());
         return registration;
     }
-     
+
 }

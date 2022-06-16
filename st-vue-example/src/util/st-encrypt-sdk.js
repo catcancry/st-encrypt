@@ -23,7 +23,6 @@ StClientUtil.getKeyAES = ()=> {
   return result
 }
 
-
 /**
  * AES加密
  * 转Utf8编码: CryptoJS.enc.Utf8.parse();
@@ -33,6 +32,7 @@ StClientUtil.getKeyAES = ()=> {
  * @returns 加密后的数据
  */
 StClientUtil.encodeAES = (data, key)=> {
+  console.info("typeof:"+(typeof data))	
   if (typeof data !== 'string') {
     data = JSON.stringify(data)
   }

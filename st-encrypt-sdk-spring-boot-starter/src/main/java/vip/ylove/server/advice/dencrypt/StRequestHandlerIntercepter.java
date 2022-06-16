@@ -1,6 +1,7 @@
 package vip.ylove.server.advice.dencrypt;
 
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.crypto.digest.DigestUtil;
 import cn.hutool.json.JSONUtil;
 import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
 import org.slf4j.Logger;
@@ -9,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
-import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.HandlerInterceptor;
 import vip.ylove.config.StConfig;
 import vip.ylove.sdk.annotation.StEncrypt;
@@ -21,8 +22,10 @@ import vip.ylove.sdk.server.dencrypt.StAbstractRequestDencrypt;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.UnsupportedEncodingException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
+import java.util.function.Consumer;
 
 @Component
 public class StRequestHandlerIntercepter implements HandlerInterceptor {
@@ -40,30 +43,50 @@ public class StRequestHandlerIntercepter implements HandlerInterceptor {
      **/
     private static final  byte[] nullBody = new String("{}").getBytes(StConst.DEFAULT_CHARSET);
 
-    @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-
+    /**
+     * 判断请你求是否需要解密解密
+     * @param request request
+     * @param handler handler
+     * @param consumer 操作方式
+     * @return
+     */
+    private boolean hasStEncrypt(HttpServletRequest request,Object handler,  Consumer<StEncrypt> consumer){
         if (!(handler instanceof HandlerMethod)) {
-            return true;
+            return false;
         }
         HandlerMethod handlerMethod = (HandlerMethod) handler;
         //判断是否需要解密参数
         StEncrypt se = handlerMethod.getMethodAnnotation(StEncrypt.class);
         if (se != null) {
             if (se.req()) {
-                //需要进行解密
-                dencryptRequest(se, request);
+                //需要进行加密解密
+                consumer.accept(se);
                 return true;
             }
         } else if (stConfig.isEnableGlobalEncrypt()) { //开启全局验证
             if (!handlerMethod.getMethod().isAnnotationPresent(StEncryptSkip.class)) { //是否跳过方法
-                //需要进行解密
-                dencryptRequest(se, request);
+                //需要进行加密解密
+                consumer.accept(se);
                 return true;
             }
         }
+        return false;
+    }
+
+    @Override
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        hasStEncrypt(request, handler,(StEncrypt stEncrypt)->{
+            dencryptRequest(stEncrypt, request);
+        });
         return true;
     }
+
+//    @Override
+//    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+//        hasStEncrypt(request, handler,(StEncrypt stEncrypt)->{
+//            System.out.println("响应结果需要进行加密");
+//        });
+//    }
 
     private void dencryptRequest(StEncrypt stEncrypt, HttpServletRequest request) {
         String ct = request.getContentType();
@@ -101,16 +124,38 @@ public class StRequestHandlerIntercepter implements HandlerInterceptor {
     }
 
     /**
-     * 表单提交
+     * 上传文件表单提交
      **/
-    private void updateByUploadForm(StEncrypt stEncrypt, HttpServletRequest request) {
-        if(request instanceof StandardMultipartHttpServletRequest){
-            System.out.println("这是个文件上传请求");
-            
-
-        }else if(request instanceof StHttpServletRequestWrapper){
-            System.out.println("一般文件上传请求");
+    private void updateByUploadForm(StEncrypt stEncrypt, HttpServletRequest request)  {
+        StStandardMultipartHttpServletRequest rq = (StStandardMultipartHttpServletRequest) request;
+        String key = rq.getParameterValue(StConst.KEY);;
+        String data = rq.getParameterValue(StConst.DATA);
+        rq.removeStEncryptParams();
+        byte[] dencrypt = stDencrypt.dencrypt(stConfig.getPrivateKey(), key, data, stEncrypt, stAuth);
+        Map<String, Object> params = null;
+        if (dencrypt != null) {
+            params = JSONUtil.toBean(new String(dencrypt, StConst.DEFAULT_CHARSET), Map.class);
+            rq.addParameters(params);
         }
+        if( rq.getFileMap() != null &&  !rq.getFileMap().isEmpty()){
+            for (MultipartFile f:rq.getFileMap().values()){
+                try(InputStream in = f.getInputStream()){
+                    System.out.println("fileName:"+f.getOriginalFilename());
+                    System.out.println("fileType:"+f.getContentType());
+                    System.out.println("fileSize:"+f.getSize());
+                    System.out.println("argName:"+f.getName());
+                    //获取文件md5
+                    String fileMD5 = DigestUtil.md5Hex(in);
+                    if(params == null || params.get(fileMD5) == null){
+                      StException.throwExec(StException.ErrorCode.UPLOAD_FILE_MD5_VERIFICATION_ERROR,"文件["+f.getOriginalFilename()+"]可能被篡改,在"+StConst.DATA+"加密数据中未发现上传文件的md5["+fileMD5+"]的参数");
+                    }
+                }catch(IOException e){
+                    StException.throwExec(36,"验证文件md5异常");
+                }
+            }
+        }
+
+
     }
 
     /**

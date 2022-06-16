@@ -28,15 +28,17 @@ service.interceptors.request.use(
 		if(config.encrypt){//从请求配置中读取是否需要加密
 			let aesKey = stClientUtil.createAESBase64Key();
 			config.aesKey = aesKey;//保存本次请求的加密key
-			if(config.method == 'get'){
+			if(config.method == 'get'){ //get请求处理烦恼歌是
 				config.params = stClientUtil.encrypt(publicKey,aesKey,new Date().getTime(),appId,appAuth,config.params,true,true)
 			}else if(config.method == 'post'){
-				if(config.params != null){
+				if(config.params != null){ //参数在链接上的处理方式
 					config.params = stClientUtil.encrypt(publicKey,aesKey,new Date().getTime(),appId,appAuth,config.params,true)
 				}else{
-					if(config.headers["Content-Type"].indexOf('application/x-www-form-urlencoded') != -1){
+					if(config.headers["Content-Type"].indexOf('application/x-www-form-urlencoded') != -1){ //普通form表单提交参数
 						config.data = qs.stringify( stClientUtil.encrypt(publicKey,aesKey,new Date().getTime(),appId,appAuth,config.data,true))
-					}else{
+					}else if(config.headers["Content-Type"].indexOf('multipart/form-data') != -1){ //文件上传处理
+						console.info("文件上传暂时不处理")
+					}else{ //默认post json提交参数
 						config.data = stClientUtil.encrypt(publicKey,aesKey,new Date().getTime(),appId,appAuth,config.data,true)
 					}
 				}

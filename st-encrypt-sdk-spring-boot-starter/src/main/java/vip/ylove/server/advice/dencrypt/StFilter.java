@@ -2,6 +2,7 @@ package vip.ylove.server.advice.dencrypt;
 
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;
+import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,10 +22,14 @@ public class StFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        StHttpServletRequestWrapper stReq = null;
+        StFilterWrapper stReq = null;
         if (request instanceof HttpServletRequest) {
             try {
-                stReq =  new StHttpServletRequestWrapper((HttpServletRequest)request);
+                if (ServletFileUpload.isMultipartContent((HttpServletRequest) request)) {
+                    stReq =  new StStandardMultipartHttpServletRequest((HttpServletRequest)request);
+                }else{
+                    stReq =  new StHttpServletRequestWrapper((HttpServletRequest)request);
+                }
             }catch (Exception e){
                 log.warn("StHttpServletRequestWrapper Error:", e);
             }

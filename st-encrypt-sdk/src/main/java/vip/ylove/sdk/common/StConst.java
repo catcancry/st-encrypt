@@ -4,10 +4,17 @@ import java.nio.charset.Charset;
 
 public class StConst {
 
+    /**
+     * 签名保存的参数名称
+     */
     public static String SIGN ="sign";
-
+    /**
+     * 加密key保存的参数名称
+     */
     public static String KEY ="key";
-
+    /**
+     * 加密数据保存参数名称
+     */
     public static String DATA ="data";
 
     /**
@@ -19,6 +26,10 @@ public class StConst {
      * 默认编码格式
      */
     public static Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
+    /**
+     * C
+     */
+    public static String File_NAME_KEY;
 
     /**
      * 加密模式

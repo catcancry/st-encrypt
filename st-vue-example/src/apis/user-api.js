@@ -1,7 +1,7 @@
 // 导入axios实例
 import httpRequest from '@/util/request.js'
 
-// 获取用户信息 加密
+
 export function apiGetUserInfoByGet(param) {
     return httpRequest({
 		url: '/server/test/encrypt2',
@@ -11,7 +11,7 @@ export function apiGetUserInfoByGet(param) {
 	})
 }
 
-// 获取用户信息 加密
+
 export function apiGetUserInfoByPost(param) {
     return httpRequest({
 		url: '/server/test/encrypt2',
@@ -22,7 +22,7 @@ export function apiGetUserInfoByPost(param) {
 	})
 }
 
-// 获取用户信息 加密
+
 export function apiGetUserInfo(param) {
     return httpRequest({
 		url: '/server/test/encrypt',
@@ -32,7 +32,7 @@ export function apiGetUserInfo(param) {
 	})
 }
 
-// 获取用户信息 未加密
+
 export function apiGetUserInfoNoEncrypt(param) {
     return httpRequest({
 		url: '/server/test/noEncrypt',
@@ -40,4 +40,23 @@ export function apiGetUserInfoNoEncrypt(param) {
 		data: param,
 		encrypt:false
 	})
+}
+
+
+export function downloadFile(param) {
+  return httpRequest({
+    url: '',
+    method: 'post',
+    data: param,
+    responseType: 'blob',
+  })
+}
+
+export function upLoadFile(param) {
+  return httpRequest({
+    url: '/server/test/encrypt2',
+    method: 'post',
+    data: param,
+    headers: { 'Content-Type': 'multipart/form-data;charset=utf-8' },
+  })
 }
