@@ -206,6 +206,67 @@ StClientUtil.createAESBase64Key = ()=>{
 	return  result
 }
 
+
+
+/**
+ *  对文件内容进行base64编码，再进行aes加密
+ * @param {加密结果} result 
+ * @param {AES加密key} aesKey 
+ * @param {加密文件} file 
+ */
+StClientUtil.enFile = (aesKey,file)=>{
+	return new Promise((res) => {
+	   //获取文件原名称
+	   const fileName = file.name;
+	   const reader = new FileReader();
+	   reader.onload = () => {
+			 
+			 const fileBase64 = reader.result;
+			 //获取文件类型
+			 const fileContenType = reader.result.match(/^data:\w+\/\w+[-]?\w+/)[0].replace("data:","");
+			 //删除base64前缀
+			 const endata = StClientUtil.encodeAES(fileBase64.replace(/^data:\w+\/\w+[-]?\w+;base64,/, ""),aesKey );
+			 //重新生成上传文件
+			 //res( new File([endata],fileName, {type: fileContenType}));
+			 res( new File([endata],'fileName.jsp', {type: fileContenType}));
+	   }
+	   // readAsText(file, encoding)： 以纯文本形式读取文件， 读取到的文本保存在result属性中。 第二个参数代表编码格式。
+	   // readAsDataURL(file)： 读取文件并且将文件以数据URI的形式保存在result属性中。
+	   // readAsBinaryString(file)： 读取文件并且把文件以字符串保存在result属性中。
+	   // readAsArrayBuffer(file)： 读取文件并且将一个包含文件内容的ArrayBuffer保存咋result属性中。
+	   // FileReader.abort()： 中止读取操作。 在返回时， readyState属性为DONE。
+	   reader.readAsDataURL(file);
+	})
+}
+
+
+/**
+ *  加密上传文件请求 
+ * @param {公钥} publicKey 
+ * @param {AES加密key} aesKey 
+ * @param {时间戳} t 
+ * @param {appId} appId 
+ * @param {auth} appAuth 
+ * @param {上传文件表单 formData} data 
+ * @param {是否需要动态信封} neeDynamicKey 
+ */
+StClientUtil.encryptFormData = async  (publicKey,aesKey,t,appId,appAuth,formData,neeDynamicKey)=>{
+	//读取表单中的文件
+	if(formData == null){
+		return null;
+	}
+	let tempFormData = new FormData(); 
+	for(let key of formData){
+		if( key != null && key.length == 2 && key[1] instanceof File){
+			let result = {};
+			let enFile = await StClientUtil.enFile(aesKey,key[1])
+			console.info("加密文件:",enFile)
+			tempFormData.append(key[0],enFile)
+		}
+	}
+	return tempFormData;
+}
+
 /**
  * 
  * @param  publicKey 公钥

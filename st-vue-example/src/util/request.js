@@ -37,7 +37,9 @@ service.interceptors.request.use(
 					if(config.headers["Content-Type"].indexOf('application/x-www-form-urlencoded') != -1){ //普通form表单提交参数
 						config.data = qs.stringify( stClientUtil.encrypt(publicKey,aesKey,new Date().getTime(),appId,appAuth,config.data,true))
 					}else if(config.headers["Content-Type"].indexOf('multipart/form-data') != -1){ //文件上传处理
-						console.info("文件上传暂时不处理")
+						let enData = stClientUtil.encryptFormData(publicKey,aesKey,new Date().getTime(),appId,appAuth,config.data,true);
+						console.info("开始加密:",enData)
+						config.data = enData;
 					}else{ //默认post json提交参数
 						config.data = stClientUtil.encrypt(publicKey,aesKey,new Date().getTime(),appId,appAuth,config.data,true)
 					}

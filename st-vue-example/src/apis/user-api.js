@@ -53,10 +53,12 @@ export function downloadFile(param) {
 }
 
 export function upLoadFile(param) {
+  console.info("------dddddddddddd-------");
   return httpRequest({
     url: '/server/test/encrypt2',
     method: 'post',
     data: param,
+	encrypt:true,
     headers: { 'Content-Type': 'multipart/form-data;charset=utf-8' },
   })
 }

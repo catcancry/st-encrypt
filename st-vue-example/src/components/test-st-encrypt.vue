@@ -65,46 +65,34 @@
 	// 	console.log("apiGetUserInfoNoEncrypt未加密请求->最终请求结果:",res)
 	// })
 	
-	
-
-	console.info("md5:" + stClientUtil.md5("555555"))
 	var fileData = ref({});
-	let chooseFile = (e) => {
+	let chooseFile =  (e) => {
 		const file = e.target.files[0]
-		console.info(file);
+		console.info("原始文件：",file);
 		if (!file) {
-			// 如果用户没有选择图片,只是点了文件上传这个按钮
 			return
 		}
-		
-		// readAsText(file, encoding)： 以纯文本形式读取文件， 读取到的文本保存在result属性中。 第二个参数代表编码格式。
-		// readAsDataUrl(file)： 读取文件并且将文件以数据URI的形式保存在result属性中。
-		// readAsBinaryString(file)： 读取文件并且把文件以字符串保存在result属性中。
-		// readAsArrayBuffer(file)： 读取文件并且将一个包含文件内容的ArrayBuffer保存咋result属性中。
-		// FileReader.abort()： 中止读取操作。 在返回时， readyState属性为DONE。
-		// const reader = new FileReader();
-		reader.onload = () => {
-			const fileBase64 = reader.result;
-			
-			const fileType = reader.result.replace(/^data:image\/\w+;base64,/, "")
-			console.info("读取完成:", reader.result.replace(/^data:image\/\w+;base64,/, ""));
-			let key = 'THMXCMQCSLCOVODH'//stClientUtil.createAESBase64Key();
-			console.info(stClientUtil.encodeAES(reader.result,key));
-		}
-		reader.readAsDataURL(file);
-
-		console.info(file.name);
-		const fd = new FormData() //创建FormData对象,
-		////fd.append('photo', file) //这个photo是vuex中的,append第一个参数是规定要插入的内容,必传参数
-		let tempFile = {name:"1.p2"};
-		//第一个参数具体的内容,第二个参数文件明年初，第三个参数文件类型
-		const ddd = new File([JSON.stringify(tempFile)], 'payapp_init_json.json', {type: 'application/json'});
-		fd.append("photo2", ddd)
-		upLoadFile(fd).then((res) => {
-			console.log("upLoadFile加密请求(带参数)->最终请求结果:",res)
+		const fd = new FormData()//创建FormData对象,
+		fd.append('photo', file)
+		//开始上传文件
+		upLoadFile(fd).then(res=>{
+			console.info("上传结果:",res)
 		})
-		
 	}
+	
+	 const enFiles = async (aesKey,formData)=>{
+		if(formData == null){
+			return null;
+		}
+		for(let key of formData){
+			if( key != null && key.length == 2 && key[1] instanceof File){
+				let result = {};
+				await stClientUtil.enFile(result,aesKey, key[1]);
+			}
+		}
+		return "success";
+	}
+
 </script>
 
 <template>
@@ -113,6 +101,8 @@
 
 	<input type="file" @change="chooseFile" ref="fileData" />
 	<span @click="fileData.click()">ddd</span>
+	
+	<span @click="clickTest">异步转同步测试</span>
 
 </template>
 
