@@ -1,13 +1,14 @@
 package vip.ylove.server.advice.dencrypt;
 
 import cn.hutool.core.io.IoUtil;
+import org.springframework.web.multipart.MultipartException;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
 import vip.ylove.sdk.common.StConst;
 
 import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
 import java.io.*;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -132,4 +133,63 @@ public class StStandardMultipartHttpServletRequest extends StandardMultipartHttp
             }
         }
     }
+
+    public static class StandardMultipartFile implements MultipartFile, Serializable {
+
+
+        String originalFilename;
+
+        String contentType;
+
+        byte[] bytes ;
+
+        public StandardMultipartFile(String originalFilename, String contentType, byte[] bytes) {
+            this.originalFilename = originalFilename;
+            this.contentType = contentType;
+            this.bytes = bytes;
+        }
+
+        public String getName() {
+            return this.getName();
+        }
+
+        public String getOriginalFilename() {
+            return this.originalFilename;
+        }
+
+        public String getContentType() {
+            return this.contentType;
+        }
+
+        public boolean isEmpty () {
+            return bytes.length == 0;
+        }
+
+        public long getSize () {
+            return bytes.length;
+        }
+
+        public byte[] getBytes() throws IOException {
+            return this.bytes;
+        }
+
+        public InputStream getInputStream() throws IOException {
+            return new ByteArrayInputStream(bytes);
+        }
+
+        @Override
+        public void transferTo (File destination) throws IOException {
+            OutputStream outputStream = null;
+            try {
+                outputStream = new FileOutputStream(destination);
+                outputStream.write(bytes);
+            } finally {
+                if (outputStream != null) {
+                    outputStream.close();
+                }
+            }
+        }
+    }
+
+
 }

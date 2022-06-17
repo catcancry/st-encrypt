@@ -1,6 +1,9 @@
 package vip.ylove.server.advice.dencrypt;
 
+import cn.hutool.core.codec.Base64;
+import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.crypto.SecureUtil;
 import cn.hutool.crypto.digest.DigestUtil;
 import cn.hutool.json.JSONUtil;
 import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
@@ -9,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -19,11 +23,14 @@ import vip.ylove.sdk.common.StConst;
 import vip.ylove.sdk.exception.StException;
 import vip.ylove.sdk.server.dencrypt.StAbstractAuth;
 import vip.ylove.sdk.server.dencrypt.StAbstractRequestDencrypt;
+import vip.ylove.sdk.util.StAuthUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -126,36 +133,46 @@ public class StRequestHandlerIntercepter implements HandlerInterceptor {
     /**
      * 上传文件表单提交
      **/
-    private void updateByUploadForm(StEncrypt stEncrypt, HttpServletRequest request)  {
+    private void updateByUploadForm(StEncrypt stEncrypt, HttpServletRequest request) {
         StStandardMultipartHttpServletRequest rq = (StStandardMultipartHttpServletRequest) request;
-        String key = rq.getParameterValue(StConst.KEY);;
+        Map<String, Object> params = null;
+        String key = rq.getParameterValue(StConst.KEY);
         String data = rq.getParameterValue(StConst.DATA);
         rq.removeStEncryptParams();
         byte[] dencrypt = stDencrypt.dencrypt(stConfig.getPrivateKey(), key, data, stEncrypt, stAuth);
-        Map<String, Object> params = null;
         if (dencrypt != null) {
             params = JSONUtil.toBean(new String(dencrypt, StConst.DEFAULT_CHARSET), Map.class);
             rq.addParameters(params);
         }
-        if( rq.getFileMap() != null &&  !rq.getFileMap().isEmpty()){
-            for (MultipartFile f:rq.getFileMap().values()){
-                try(InputStream in = f.getInputStream()){
-                    System.out.println("fileName:"+f.getOriginalFilename());
-                    System.out.println("fileType:"+f.getContentType());
-                    System.out.println("fileSize:"+f.getSize());
-                    System.out.println("argName:"+f.getName());
-                    //获取文件md5
-                    String fileMD5 = DigestUtil.md5Hex(in);
-                    if(params == null || params.get(fileMD5) == null){
-                      StException.throwExec(StException.ErrorCode.UPLOAD_FILE_MD5_VERIFICATION_ERROR,"文件["+f.getOriginalFilename()+"]可能被篡改,在"+StConst.DATA+"加密数据中未发现上传文件的md5["+fileMD5+"]的参数");
+        if (rq.getMultiFileMap() != null && !rq.getMultiFileMap().isEmpty()) {
+            MultiValueMap<String, MultipartFile> multiFileMap = rq.getMultiFileMap();
+            Object[] multiFileMapKeys = multiFileMap.keySet().toArray();
+            for (int i = 0; i < multiFileMapKeys.length; i++) {
+                List<MultipartFile> multipartFiles = multiFileMap.get(multiFileMapKeys[i]);
+                for (int j = 0; j < multipartFiles.size(); j++) {
+                    MultipartFile f = multipartFiles.get(j);
+                    if (params.get(StConst.UPLOAD_MODE) == null || StConst.enMode.DEFAULT.equals(params.get(StConst.UPLOAD_MODE))) {
+                        try (InputStream in = f.getInputStream()) {
+                            stDencrypt.dencryptFile(f.getOriginalFilename(), in, params);
+                        } catch (StException e) {
+                            throw e;
+                        } catch (IOException e) {
+                            StException.throwExec(36, "验证文件异常:" + e.getMessage());
+                        }
+                    } else {
+                        try (InputStream in = f.getInputStream()) {
+                            String read = IoUtil.read(in, StConst.DEFAULT_CHARSET);
+                            byte[] fileO = stDencrypt.dencryptFile(f.getOriginalFilename(), read, params);
+                            multiFileMap.put((String) multiFileMapKeys[i], Arrays.asList(new StStandardMultipartHttpServletRequest.StandardMultipartFile(f.getOriginalFilename(), f.getContentType(), fileO)));
+                        } catch (StException e) {
+                            throw e;
+                        } catch (IOException e) {
+                            StException.throwExec(36, "验证文件md5异常");
+                        }
                     }
-                }catch(IOException e){
-                    StException.throwExec(36,"验证文件md5异常");
                 }
             }
         }
-
-
     }
 
     /**

@@ -18,6 +18,11 @@ public class StConst {
     public static String DATA ="data";
 
     /**
+     *  文件上传加密模式
+     */
+    public static String UPLOAD_MODE ="st_upload_mode";
+
+    /**
      * 加密分隔
      */
     public static String SPLIT = "###";
@@ -26,10 +31,6 @@ public class StConst {
      * 默认编码格式
      */
     public static Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
-    /**
-     * C
-     */
-    public static String File_NAME_KEY;
 
     /**
      * 加密模式
@@ -37,9 +38,9 @@ public class StConst {
     public static class enMode{
 
         /**
-         * 默认模式 即对请求参数打包加密，再后端解开 适用于get、post等相关请求
+         * 默认模式 即对请求参数打包加密.对文件只添加md5
          */
-        public static int DEFAULT = 1;
+        public static String DEFAULT = "1";
 
     }
 

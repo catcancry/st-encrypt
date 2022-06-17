@@ -26,8 +26,10 @@ service.interceptors.request.use(
 	function (config) {
 		// 在发送请求之前做些什么
 		if(config.encrypt){//从请求配置中读取是否需要加密
-			let aesKey = stClientUtil.createAESBase64Key();
-			config.aesKey = aesKey;//保存本次请求的加密key
+			let aesKey = config.aesKey;
+			if(aesKey == null){
+				config.aesKey = aesKey = stClientUtil.createAesKey();;//保存本次请求的加密key
+			}
 			if(config.method == 'get'){ //get请求处理烦恼歌是
 				config.params = stClientUtil.encrypt(publicKey,aesKey,new Date().getTime(),appId,appAuth,config.params,true,true)
 			}else if(config.method == 'post'){
@@ -37,9 +39,7 @@ service.interceptors.request.use(
 					if(config.headers["Content-Type"].indexOf('application/x-www-form-urlencoded') != -1){ //普通form表单提交参数
 						config.data = qs.stringify( stClientUtil.encrypt(publicKey,aesKey,new Date().getTime(),appId,appAuth,config.data,true))
 					}else if(config.headers["Content-Type"].indexOf('multipart/form-data') != -1){ //文件上传处理
-						let enData = stClientUtil.encryptFormData(publicKey,aesKey,new Date().getTime(),appId,appAuth,config.data,true);
-						console.info("开始加密:",enData)
-						config.data = enData;
+						config.data = stClientUtil.encryptFormData(publicKey,aesKey,new Date().getTime(),appId,appAuth,config.data,true);
 					}else{ //默认post json提交参数
 						config.data = stClientUtil.encrypt(publicKey,aesKey,new Date().getTime(),appId,appAuth,config.data,true)
 					}

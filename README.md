@@ -50,10 +50,6 @@ Spring Boot接口加密，可以对返回值、参数值通过注解的方式自
 </dependency>
 ```
 
-**Gradle Groovy DSL**
-```
-implementation 'vip.ylove:st-encrypt-sdk:1.0'
-```
 - **以springboot以Maven为例，在pom.xml中引入依赖**  
 ```
 <dependency>
@@ -138,7 +134,8 @@ if( stEncryptBody.isSuccess()){
 }
 
 ```
-可以参考提供的demo实现客户端和第三方调用
+目前支持GET,POST等，包括一般get请求，post json请求，post表单请求，和文件上传请求
+可以参考提供的demo实现客户端和第三方调用,
 
 
 
