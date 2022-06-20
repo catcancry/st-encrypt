@@ -6,7 +6,7 @@ import BMF from 'browser-md5-file';
 /* 
  * crypto-js进行AES加密,安装: npm i crypto-js
  * jsrsasign进行rsa加密,安装: npm i jsrsasign
- * browser-md5-file进行文件md5,安装: 						  npm i browser-md5-file
+ * browser-md5-file进行文件md5,安装: npm i browser-md5-file
 */
 
 const StClientUtil = {};
