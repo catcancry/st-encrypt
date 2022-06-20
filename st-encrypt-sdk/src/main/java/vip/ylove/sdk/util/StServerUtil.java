@@ -86,7 +86,7 @@ public class StServerUtil {
                 String auth = split[3];
 
                 //调用接口进行权限验证,若没有实现则默认跳过验证
-                if (stAuth != null && stEncrypt.auth()) {
+                if (stAuth != null && stEncrypt != null && stEncrypt.auth()) {
                     boolean authResult = stAuth.auth(aesKey,appId, auth, t, stEncrypt);
                     if (!authResult) {
                         StException.throwExec(2, "认证未通过");
