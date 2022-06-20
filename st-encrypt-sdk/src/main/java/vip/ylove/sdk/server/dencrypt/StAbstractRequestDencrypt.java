@@ -25,7 +25,7 @@ public interface StAbstractRequestDencrypt {
      * @param content    加密内容内容
      * @param stEncrypt  方法上的注解
      * @param stAuth     鉴权方法 可为空
-     * @return
+     * @return byte[]
      */
     default public byte[] dencrypt(String privateKey, String content, StEncrypt stEncrypt, StAbstractAuth stAuth) {
         return StServerUtil.dencrypt(privateKey,content,stEncrypt,stAuth);
@@ -39,7 +39,7 @@ public interface StAbstractRequestDencrypt {
      * @param content    加密内容内容
      * @param stEncrypt  方法上的注解
      * @param stAuth     鉴权方法 可为空
-     * @return
+     * @return 解密内容
      */
     default public byte[] dencrypt(String privateKey,String encryptKey,  String content, StEncrypt stEncrypt, StAbstractAuth stAuth) {
         return StServerUtil.dencrypt(privateKey,encryptKey,content,stEncrypt,stAuth);
@@ -50,7 +50,6 @@ public interface StAbstractRequestDencrypt {
     * @param fileName 文件名称
     * @param in 文件输入流已经自动关闭
     * @param params 表单其他信息
-    * @return
     **/
     default public void dencryptFile(String fileName,InputStream in, Map<String,Object> params){
         if (params == null) {

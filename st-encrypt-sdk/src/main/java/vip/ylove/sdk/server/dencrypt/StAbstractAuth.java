@@ -25,7 +25,7 @@ public interface StAbstractAuth {
     /**
      * 获取key 该方法可以将前端加密key存在后端，减少每次加密传输key加大请求负担
      * 默认情况下每次请求都传递不同的加密key,但在部分场景下也可以在登陆后，将key存在后端
-     * @return
+     * @return 返回加密key
      */
     default public String key(){
         if(StAuthUtil.getStAuth() == null || StAuthUtil.getStAuth().getKey() == null){

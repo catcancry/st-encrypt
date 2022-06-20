@@ -23,7 +23,7 @@ public class StAuthUtil {
 
     /**
      * 设置用户信息
-     * @param stAuthInfo
+     * @param stAuthInfo 用户信息
      */
     protected static void setStAuth(StAuthInfo stAuthInfo){
          auth.set(stAuthInfo);

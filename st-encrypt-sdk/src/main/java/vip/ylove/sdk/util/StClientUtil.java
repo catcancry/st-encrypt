@@ -62,6 +62,7 @@ public class StClientUtil {
     }
     /**
      * 生成一对RSA公私钥
+     * 返回公私钥
      **/
     public static Key createRSABase64Key(){
         RSA rsa = new RSA();
