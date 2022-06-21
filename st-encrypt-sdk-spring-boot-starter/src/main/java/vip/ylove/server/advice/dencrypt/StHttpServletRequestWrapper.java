@@ -84,12 +84,14 @@ public class StHttpServletRequestWrapper extends HttpServletRequestWrapper imple
 
     /**
      * 获取body
+     * @return  body
      **/
     public byte[] getBody() {
         return this.body;
     }
     /**
      * 设置负载
+     * @param   body 设置body
      **/
     public void setBody(byte[] body) {
         this.body = body;
@@ -107,6 +109,7 @@ public class StHttpServletRequestWrapper extends HttpServletRequestWrapper imple
 
     /**
      * 将解密后的参数回填
+     * @param otherParams 其他参数
      **/
     public void addParameters(Map<String, Object> otherParams) {
         if(otherParams != null){

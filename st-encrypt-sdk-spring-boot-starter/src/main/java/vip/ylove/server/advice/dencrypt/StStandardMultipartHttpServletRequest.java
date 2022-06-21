@@ -94,12 +94,14 @@ public class StStandardMultipartHttpServletRequest extends StandardMultipartHttp
 
     /**
      * 获取body
+     * @return body字节
      **/
     public byte[] getBody() {
         return this.body;
     }
     /**
      * 设置负载
+     * @param body body内容
      **/
     public void setBody(byte[] body) {
         this.body = body;
@@ -117,6 +119,7 @@ public class StStandardMultipartHttpServletRequest extends StandardMultipartHttp
 
     /**
      * 将解密后的参数回填
+     * @param otherParams 其他参数
      **/
     public void addParameters(Map<String, Object> otherParams) {
         if(otherParams != null){
