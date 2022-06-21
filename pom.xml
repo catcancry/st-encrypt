@@ -8,7 +8,7 @@
     <groupId>vip.ylove</groupId>
     <artifactId>st-encrypt-sdk-parent</artifactId>
     <name>${project.artifactId}</name>
-    <version>1.0.2</version>
+    <version>1.2.0</version>
     <description>Spring Boot 接口请求参数自动加解密</description>
     <url>https://github.com/catcancry/st-encrypt</url>
 
