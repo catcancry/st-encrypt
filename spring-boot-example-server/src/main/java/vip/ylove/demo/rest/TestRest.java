@@ -1,7 +1,7 @@
 package vip.ylove.demo.rest;
 
+import cn.hutool.core.io.IoUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -57,7 +57,7 @@ public class TestRest {
                 dir.mkdirs();
             }
             try (InputStream inputStream = f.getInputStream(); FileOutputStream fileOutputStream = new FileOutputStream(new File("/home/st-test/"+name))) {
-                IOUtils.copy(inputStream, fileOutputStream);
+                IoUtil.copy(inputStream, fileOutputStream);
             } catch (IOException e) {
                 e.printStackTrace();
             }

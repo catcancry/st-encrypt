@@ -31,3 +31,5 @@ build/
 # system ignore
 .DS_Store
 Thumbs.db
+
+st-vue-example/node_modules

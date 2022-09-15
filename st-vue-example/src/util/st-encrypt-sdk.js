@@ -34,7 +34,6 @@ StClientUtil.createAesKey = ()=> {
  * @returns 加密后的数据
  */
 StClientUtil.encodeAES = (data, key)=> {
-  console.info("typeof:"+(typeof data))	
   if (typeof data !== 'string') {
     data = JSON.stringify(data)
   }
