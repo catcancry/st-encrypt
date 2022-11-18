@@ -39,11 +39,19 @@ public class StServerEncryptResponseBodyAdvice implements ResponseBodyAdvice<Obj
     public boolean supports(MethodParameter p, Class<? extends HttpMessageConverter<?>> converterType) {
         StEncrypt se = p.getMethodAnnotation(StEncrypt.class);
         if (se != null ) {
+            //在使用注解开发测试时，允许临时关闭注解
+            if(stConfig.isCloseGlobalEncrypt()){
+                return false;
+            }
             if(!se.resp()){
                 return false;
             }
             return true;
         }else  if(stConfig.isEnableGlobalEncrypt()){ //开启全局验证
+            //在使用注解开发测试时，允许临时关闭注解
+            if(stConfig.isCloseGlobalEncrypt()){
+                return false;
+            }
             if (!p.getMethod().isAnnotationPresent(StEncryptSkip.class) ){ //是否跳过方法
                 return true;
             }

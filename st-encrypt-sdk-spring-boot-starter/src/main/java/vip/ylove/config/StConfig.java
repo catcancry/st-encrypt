@@ -35,11 +35,16 @@ public class StConfig {
      */
     private String appAuth;
 
-
     /**
-     * 开启全局加密解密
+     * 开启全局加密解密,不在接口头上添加注解,完成全局加密解密(不推荐)
      **/
     private boolean enableGlobalEncrypt =  false;
+
+    /**
+     * 关闭全局加密解密,在接口上使用注解时，可能需要对接口关闭加密，方便测试使用
+     * 一般不要配置，明确知道要做什么在使用
+     **/
+    private boolean closeGlobalEncrypt =  false;
 
     /**
      * 配置intercepter相关参数
@@ -189,5 +194,13 @@ public class StConfig {
 
     public void setStFilterConfig(StFilterConfig stFilterConfig) {
         this.stFilterConfig = stFilterConfig;
+    }
+
+    public boolean isCloseGlobalEncrypt() {
+        return closeGlobalEncrypt;
+    }
+
+    public void setCloseGlobalEncrypt(boolean closeGlobalEncrypt) {
+        this.closeGlobalEncrypt = closeGlobalEncrypt;
     }
 }

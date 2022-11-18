@@ -18,7 +18,7 @@ public interface StAbstractAuth {
      * @param stEncrypt 补充信息
      * @return boolean
      **/
-    default public boolean auth(String aesKey, String appId, String auth, String t, StEncrypt stEncrypt) {
+    default public boolean auth(final String aesKey,final String appId,final String auth,final String t,final StEncrypt stEncrypt) {
         return true;
     }
 

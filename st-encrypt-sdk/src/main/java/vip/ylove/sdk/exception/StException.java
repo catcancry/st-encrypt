@@ -1,5 +1,7 @@
 package vip.ylove.sdk.exception;
 
+import vip.ylove.sdk.common.StErrorCode;
+
 public class StException extends   RuntimeException{
 
     private int code;//状态码
@@ -15,6 +17,10 @@ public class StException extends   RuntimeException{
 
     public static void throwExec(int code,String msg){
         throw new StException(msg, code);
+    }
+
+    public static void throwExec(StErrorCode errorCode){
+        throw new StException(errorCode.getError(), errorCode.getCode());
     }
 
     public class ErrorCode{
