@@ -1,10 +1,6 @@
 package vip.ylove.server.advice.dencrypt;
 
-import cn.hutool.core.codec.Base64;
 import cn.hutool.core.io.IoUtil;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.crypto.SecureUtil;
-import cn.hutool.crypto.digest.DigestUtil;
 import cn.hutool.json.JSONUtil;
 import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
 import org.slf4j.Logger;
@@ -23,7 +19,6 @@ import vip.ylove.sdk.common.StConst;
 import vip.ylove.sdk.exception.StException;
 import vip.ylove.sdk.server.dencrypt.StAbstractAuth;
 import vip.ylove.sdk.server.dencrypt.StAbstractRequestDencrypt;
-import vip.ylove.sdk.util.StAuthUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -66,12 +61,20 @@ public class StRequestHandlerIntercepter implements HandlerInterceptor {
         StEncrypt se = handlerMethod.getMethodAnnotation(StEncrypt.class);
         if (se != null) {
             if (se.req()) {
+                //在使用注解开发测试时，允许临时关闭注解
+                if(stConfig.isCloseGlobalEncrypt()){
+                    return false;
+                }
                 //需要进行加密解密
                 consumer.accept(se);
                 return true;
             }
         } else if (stConfig.isEnableGlobalEncrypt()) { //开启全局验证
             if (!handlerMethod.getMethod().isAnnotationPresent(StEncryptSkip.class)) { //是否跳过方法
+                //在使用注解开发测试时，允许临时关闭注解
+                if(stConfig.isCloseGlobalEncrypt()){
+                    return false;
+                }
                 //需要进行加密解密
                 consumer.accept(se);
                 return true;

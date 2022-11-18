@@ -27,7 +27,7 @@ public interface StAbstractRequestDencrypt {
      * @param stAuth     鉴权方法 可为空
      * @return byte[]
      */
-    default public byte[] dencrypt(String privateKey, String content, StEncrypt stEncrypt, StAbstractAuth stAuth) {
+    default public byte[] dencrypt(final String privateKey,final String content,final StEncrypt stEncrypt,final StAbstractAuth stAuth) {
         return StServerUtil.dencrypt(privateKey,content,stEncrypt,stAuth);
     }
 
@@ -41,7 +41,7 @@ public interface StAbstractRequestDencrypt {
      * @param stAuth     鉴权方法 可为空
      * @return 解密内容
      */
-    default public byte[] dencrypt(String privateKey,String encryptKey,  String content, StEncrypt stEncrypt, StAbstractAuth stAuth) {
+    default public byte[] dencrypt(final String privateKey,final String encryptKey,final String content,final StEncrypt stEncrypt,final StAbstractAuth stAuth) {
         return StServerUtil.dencrypt(privateKey,encryptKey,content,stEncrypt,stAuth);
     }
 

@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import vip.ylove.sdk.annotation.StEncrypt;
 import vip.ylove.sdk.common.StAuthInfo;
 import vip.ylove.sdk.common.StConst;
+import vip.ylove.sdk.common.StErrorCode;
 import vip.ylove.sdk.dto.StResponseBody;
 import vip.ylove.sdk.dto.StResquestBody;
 import vip.ylove.sdk.exception.StException;
@@ -21,8 +22,6 @@ import vip.ylove.sdk.server.dencrypt.StAbstractAuth;
 public class StServerUtil {
 
     private static Logger log = LoggerFactory.getLogger(StServerUtil.class);
-
-
 
     /**
      * 加密响应结果
@@ -57,7 +56,7 @@ public class StServerUtil {
      * @param stAuth     鉴权接口
      * @return java.lang.Object
      **/
-    public static byte[] dencrypt(String privateKey, String content, StEncrypt stEncrypt, StAbstractAuth stAuth) {
+    public static byte[] dencrypt(final String privateKey,final String content,final StEncrypt stEncrypt,final StAbstractAuth stAuth) {
         StResquestBody dencryptBody = JSONUtil.toBean(content, StResquestBody.class);
         return dencrypt(privateKey,dencryptBody.getKey(),dencryptBody.getData(),stEncrypt,stAuth);
     }
@@ -72,7 +71,7 @@ public class StServerUtil {
      * @param stAuth     鉴权接口
      * @return java.lang.Object
      **/
-    public static byte[] dencrypt(String privateKey, String encryptKey,String encryptData, StEncrypt stEncrypt, StAbstractAuth stAuth) {
+    public static byte[] dencrypt(final String privateKey,final String encryptKey,final String encryptData,final StEncrypt stEncrypt,final StAbstractAuth stAuth) {
         //当key为空时,从StAbstractAuth中获取加密key
         if (!StrUtil.isBlankIfStr(encryptKey)) {
             //使用私钥解密
@@ -90,7 +89,7 @@ public class StServerUtil {
                     if(stEncrypt == null  || stEncrypt.auth()){
                         boolean authResult = stAuth.auth(aesKey,appId, auth, t, stEncrypt);
                         if (!authResult) {
-                            StException.throwExec(2, "认证未通过");
+                            StException.throwExec(StErrorCode.error2);
                             return null;
                         }
                     }
@@ -120,10 +119,14 @@ public class StServerUtil {
                     }
                 });
             } else {
-                StException.throwExec(11, "按照规定格式进行加密");
+                StException.throwExec(StErrorCode.error11);
                 return null;
             }
 
+        }else{
+            if(stAuth == null || stAuth.key() == null || stAuth.key().length() == 0){
+                StException.throwExec(StErrorCode.error12);
+            }
         }
 
         //加密data为空，说明只是单纯的往后端传递了一个加密key

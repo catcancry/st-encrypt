@@ -22,15 +22,15 @@ public class StAuthUtil {
     }
 
     /**
-     * 设置用户信息
-     * @param stAuthInfo 用户信息
+     * 设置授权信息
+     * @param stAuthInfo 授权信息
      */
-    protected static void setStAuth(StAuthInfo stAuthInfo){
+    protected static void setStAuth(final StAuthInfo stAuthInfo){
          auth.set(stAuthInfo);
     }
 
     /**
-     * 移除用户信息
+     * 移除授权信息
      */
     protected static void clearStAuth(){
         auth.remove();
@@ -43,7 +43,7 @@ public class StAuthUtil {
      * @param encryptAppAuth   服务端保存的加密授权信息
      * @return boolean
      **/
-    public static boolean verify(String appAuth,String encryptAppAuth){
+    public static boolean verify(final String appAuth,final String encryptAppAuth){
        return BCrypt.checkpw(appAuth,encryptAppAuth);
     }
 
@@ -53,7 +53,7 @@ public class StAuthUtil {
      * @param pwd  授权码
      * @return java.lang.String
      **/
-    public static String encrypt(String pwd){
+    public static String encrypt(final String pwd){
         return BCrypt.hashpw(pwd,BCrypt.gensalt());
     }
 }

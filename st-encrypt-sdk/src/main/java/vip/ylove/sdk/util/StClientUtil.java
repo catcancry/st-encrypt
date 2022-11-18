@@ -81,7 +81,7 @@ public class StClientUtil {
 
     /**
      * 生成加密请求参数
-     * @param RSAPublicKey 加密公钥
+     * @param publicKey 加密公钥
      * @param aesKey  随机aesKey
      * @param t       时间戳
      * @param appId   授权id 可以为空
@@ -89,12 +89,12 @@ public class StClientUtil {
      * @param data    加密内容
      * @return vip.ylove.sdk.dto.StResquestBody
      */
-    public static StResquestBody encrypt(String RSAPublicKey, String aesKey, long t, String appId, String auth, Object data) {
-        return encrypt( RSAPublicKey,  aesKey,  t,  appId,  auth, JSONUtil.toJsonStr(data));
+    public static StResquestBody encrypt(final String publicKey,final String aesKey,final long t,final String appId,final String auth,final Object data) {
+        return encrypt( publicKey,  aesKey,  t,  appId,  auth, JSONUtil.toJsonStr(data));
     }
     /**
      * 生成加密请求参数
-     * @param RSAPublicKey 加密公钥
+     * @param publicKey 加密公钥
      * @param aesKey  随机aesKey
      * @param t       时间戳
      * @param appId   授权id 可以为空
@@ -102,7 +102,7 @@ public class StClientUtil {
      * @param data    加密内容
      * @return vip.ylove.sdk.dto.StResquestBody
      */
-    public static StResquestBody encrypt(String RSAPublicKey, String aesKey, long t, String appId, String auth, String data) {
+    public static StResquestBody encrypt(final String publicKey,final String aesKey,final long t,final String appId, final String auth,final String data) {
         StAuthUtil.setStAuth(new StAuthInfo() {
             @Override
             public String getAppId() {
@@ -135,7 +135,7 @@ public class StClientUtil {
                 .append(auth);
 
         String keyData =  keyDataBuffer.toString();
-        String key = SecureUtil.rsa(null,RSAPublicKey).encryptBase64(keyData,StConst.DEFAULT_CHARSET,KeyType.PublicKey);
+        String key = SecureUtil.rsa(null,publicKey).encryptBase64(keyData,StConst.DEFAULT_CHARSET,KeyType.PublicKey);
         String sign = null;//由于使用的一把公私钥加密解密,因此加签就不需要了
         String encryptData = SecureUtil.aes(StrUtil.bytes(aesKey,StConst.DEFAULT_CHARSET)).encryptBase64(data,StConst.DEFAULT_CHARSET);
         return new StResquestBody( sign,  key,  encryptData);
@@ -146,28 +146,28 @@ public class StClientUtil {
 
     /**
      * 生成加密请求参数(在线程不变的情况下可以使用这个方法，完成加密解密)
-     * @param RSAPublicKey 加密公钥
+     * @param publicKey 加密公钥
      * @param t       时间戳
      * @param appId   授权id 可以为空
      * @param auth    授权值 可以为空
      * @param data    加密内容
      * @return vip.ylove.sdk.dto.StResquestBody
      */
-    public static StResquestBody encrypt(String RSAPublicKey, long t, String appId, String auth, Object data) {
-        return encrypt( RSAPublicKey, StClientUtil.createAESBase64Key(),  t,  appId,  auth, JSONUtil.toJsonStr(data));
+    public static StResquestBody encrypt(final String publicKey,final  long t,final  String appId,final String auth,final Object data) {
+        return encrypt( publicKey, StClientUtil.createAESBase64Key(),  t,  appId,  auth, JSONUtil.toJsonStr(data));
     }
 
     /**
      * 生成加密请求参数(在线程不变的情况下可以使用这个方法，完成加密解密)
-     * @param RSAPublicKey 加密公钥
+     * @param publicKey 加密公钥
      * @param t       时间戳
      * @param appId   授权id 可以为空
      * @param auth    授权值 可以为空
      * @param data    加密内容
      * @return vip.ylove.sdk.dto.StResquestBody
      */
-    public static StResquestBody encrypt(String RSAPublicKey, long t, String appId, String auth, String data) {
-        return encrypt( RSAPublicKey, StClientUtil.createAESBase64Key(),  t,  appId,  auth, data);
+    public static StResquestBody encrypt(final String publicKey,final long t,final String appId,final String auth,final String data) {
+        return encrypt( publicKey, StClientUtil.createAESBase64Key(),  t,  appId,  auth, data);
     }
 
     /**
@@ -177,7 +177,7 @@ public class StClientUtil {
      * @param stEncryptBody 解密内容
      * @return java.lang.String
      */
-    public static  String dencrypt(String publicKey, String aesKey, StBody stEncryptBody){
+    public static  String dencrypt(final String publicKey,final  String aesKey,final StBody stEncryptBody){
         StAuthUtil.clearStAuth();
         String data = stEncryptBody.getData();
         String sign = stEncryptBody.getSign();

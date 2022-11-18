@@ -3,6 +3,7 @@ package vip.ylove.demo.rest;
 import cn.hutool.core.io.IoUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -75,7 +76,7 @@ public class TestRest {
      */
     @StEncrypt(data = "login")
     @PostMapping("/encrypt")
-    public BaseResult encrypt(@RequestBody TestForm form) {
+    public BaseResult encrypt(@Validated @RequestBody TestForm form) {
         log.info("服务器收到post json请求参数:{}", form);
         return BaseResult.success_(form);
     }
