@@ -139,6 +139,9 @@ if( stEncryptBody.isSuccess()){
 
 
 
+### 🍩感谢
+- 感谢 JetBrains 为 smart-socket 提供的 IDEA License。     
+    <a href="https://www.jetbrains.com/?from=st-encrypt"><img src="jetbrains.png" width="20%" height="20%"/></a>
 
 
 
