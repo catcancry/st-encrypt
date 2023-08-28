@@ -29,7 +29,7 @@ Spring Boot接口加密，可以对返回值、参数值通过注解的方式自
 
 ```
 
-- 1.每次请求的AES_KEY不同，AES_KEY保存浏览器内存，并且RSA_公钥加密传输，劫持者从始至终都不知道AES_KEY，保证了响应内容，劫持者且伪造服务器的响应结果
+- 1.每次请求的AES_KEY不同，AES_KEY保存浏览器内存，并且RSA_公钥加密传输，劫持者从始至终都不知道AES_KEY，保证了响应内容，劫持者无法伪造服务器的响应结果
 
 
 安全是相对的，只看价值和付出
@@ -40,13 +40,13 @@ Spring Boot接口加密，可以对返回值、参数值通过注解的方式自
 <dependency>
     <groupId>vip.ylove</groupId>
     <artifactId>st-encrypt-sdk</artifactId>
-    <version>1.2.1</version>
+    <version>3.0.0</version>
 </dependency>
 或者
 <dependency>
     <groupId>vip.ylove</groupId>
     <artifactId>st-encrypt-sdk-spring-boot-starter</artifactId>
-    <version>1.2.1</version>
+    <version>3.0.0</version>
 </dependency>
 ```
 
@@ -55,7 +55,7 @@ Spring Boot接口加密，可以对返回值、参数值通过注解的方式自
 <dependency>
     <groupId>vip.ylove</groupId>
     <artifactId>st-encrypt-sdk-spring-boot-starter</artifactId>
-    <version>1.2.1</version>
+    <version>3.0.0</version>
 </dependency>
 ```
 - **启动类Application中添加@StEnableSecurity注解**

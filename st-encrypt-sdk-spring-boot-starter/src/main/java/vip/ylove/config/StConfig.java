@@ -5,7 +5,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**

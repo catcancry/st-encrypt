@@ -1,8 +1,8 @@
 package vip.ylove.server.advice.dencrypt;
 
 import cn.hutool.core.io.IoUtil;
-import cn.hutool.json.JSONUtil;
-import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +12,8 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.HandlerInterceptor;
+import vip.ylove.FileUploadUtils;
+import vip.ylove.JsonUtils;
 import vip.ylove.config.StConfig;
 import vip.ylove.sdk.annotation.StEncrypt;
 import vip.ylove.sdk.annotation.StEncryptSkip;
@@ -20,8 +22,6 @@ import vip.ylove.sdk.exception.StException;
 import vip.ylove.sdk.server.dencrypt.StAbstractAuth;
 import vip.ylove.sdk.server.dencrypt.StAbstractRequestDencrypt;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -52,7 +52,7 @@ public class StRequestHandlerIntercepter implements HandlerInterceptor {
      * @param consumer 操作方式
      * @return
      */
-    private boolean hasStEncrypt(HttpServletRequest request,Object handler,  Consumer<StEncrypt> consumer){
+    private boolean hasStEncrypt(HttpServletRequest request, Object handler, Consumer<StEncrypt> consumer){
         if (!(handler instanceof HandlerMethod)) {
             return false;
         }
@@ -114,7 +114,7 @@ public class StRequestHandlerIntercepter implements HandlerInterceptor {
                 return;
             }
             //如果是文件上传请求,直接跳过，暂时不支持加密解密
-            if (ServletFileUpload.isMultipartContent(request)) {
+            if (FileUploadUtils.isMultipartContent(request)) {
                 this.updateByUploadForm(stEncrypt,request);
                 return;
             }
@@ -144,7 +144,7 @@ public class StRequestHandlerIntercepter implements HandlerInterceptor {
         rq.removeStEncryptParams();
         byte[] dencrypt = stDencrypt.dencrypt(stConfig.getPrivateKey(), key, data, stEncrypt, stAuth);
         if (dencrypt != null) {
-            params = JSONUtil.toBean(new String(dencrypt, StConst.DEFAULT_CHARSET), Map.class);
+            params = JsonUtils.toBean(new String(dencrypt, StConst.DEFAULT_CHARSET), Map.class);
             rq.addParameters(params);
         }
         if (rq.getMultiFileMap() != null && !rq.getMultiFileMap().isEmpty()) {
@@ -193,7 +193,7 @@ public class StRequestHandlerIntercepter implements HandlerInterceptor {
         requestWrapper.removeStEncryptParams();
         byte[] dencrypt = stDencrypt.dencrypt(stConfig.getPrivateKey(), key, data, stEncrypt, stAuth);
         if (dencrypt != null) {
-            Map<String, Object> params = JSONUtil.toBean(new String(dencrypt, StConst.DEFAULT_CHARSET), Map.class);
+            Map<String, Object> params = JsonUtils.toBean(new String(dencrypt, StConst.DEFAULT_CHARSET), Map.class);
             requestWrapper.addParameters(params);
         }
     }

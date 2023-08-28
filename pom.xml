@@ -7,28 +7,33 @@
 
     <groupId>vip.ylove</groupId>
     <artifactId>st-encrypt-sdk-parent</artifactId>
+
     <name>${project.artifactId}</name>
-    <version>1.2.1</version>
+    <version>${revision}</version>
     <description>Spring Boot 接口请求参数自动加解密</description>
     <url>https://github.com/catcancry/st-encrypt</url>
 
 
     <properties>
+        <revision>3.0.0</revision>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>1.8</java.version>
-        <compile.version>1.8</compile.version>
+        <java.version>17</java.version>
 
-        <springboot-version>2.1.4.RELEASE</springboot-version>
-        <slf4j-api.version>1.7.36</slf4j-api.version>
-        <hutool.version>5.7.22</hutool.version>
+        <spring-boot.version>3.1.3</spring-boot.version>
+        <hutool.version>5.8.20</hutool.version>
+        <slf4j-api.version>2.0.7</slf4j-api.version>
+
+        <!-- 插件版本 -->
+        <maven-compiler-plugin.verison>3.11.0</maven-compiler-plugin.verison>
+        <flatten-maven-plugin.version>1.3.0</flatten-maven-plugin.version>
     </properties>
 
     <modules>
         <module>st-encrypt-sdk</module>
         <module>st-encrypt-sdk-spring-boot-starter</module>
-        <!--<module>spring-boot-example-server</module>-->
-        <!--<module>spring-boot-example-client</module>-->
+<!--        <module>spring-boot-example-server</module>-->
+<!--        <module>spring-boot-example-client</module>-->
     </modules>
 
 
@@ -60,19 +65,22 @@
 
     <build>
         <plugins>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <version>${maven-compiler-plugin.verison}</version>
                 <configuration>
-                    <source>${compile.version}</source>
-                    <target>${compile.version}</target>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
                     <!-- 编译后保持方法形参名称不变 -->
                     <compilerArgs>
                         <arg>-parameters</arg>
                     </compilerArgs>
                 </configuration>
             </plugin>
+
             <!-- Javadoc -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -103,6 +111,7 @@
                     </execution>
                 </executions>
             </plugin>
+
             <!-- 测试覆盖度 -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -116,6 +125,7 @@
                     <check/>
                 </configuration>
             </plugin>
+
             <!-- Gpg Signature -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -131,6 +141,7 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>nexus-staging-maven-plugin</artifactId>
@@ -141,6 +152,33 @@
                     <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
                     <autoReleaseAfterClose>true</autoReleaseAfterClose>
                 </configuration>
+            </plugin>
+
+            <!-- 统一版本号管理 -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>${flatten-maven-plugin.version}</version>
+                <configuration>
+                    <updatePomFile>true</updatePomFile>
+                    <flattenMode>resolveCiFriendliesOnly</flattenMode>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>flatten.clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
         </plugins>

@@ -1,6 +1,5 @@
 package vip.ylove.demo.client.common.exception;
 
-import cn.dev33.satoken.exception.NotLoginException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -81,20 +80,6 @@ public class GlobalExceptionHandler {
 		String msg = notValidException.getBindingResult().getFieldError().getDefaultMessage();
 		return BaseResult.fail_(BaseResult.BaseResultCode.PARAM_EXECPTION,msg);
 	}
-
-
-	/**
-	 * 未登陆验证
-	 * @param e
-	 * @return
-	 */
-	@ExceptionHandler(value = NotLoginException.class)
-	@ResponseBody
-	public BaseResult LoginException(NotLoginException e) {
-		return BaseResult.fail_(BaseResult.BaseResultCode.LOGIN_NOT_LOGIN,e.getMessage());
-	}
-
-
 
 	//其他未处理的异常
 	@ExceptionHandler(Exception.class)

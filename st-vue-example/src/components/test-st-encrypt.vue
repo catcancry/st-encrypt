@@ -59,6 +59,7 @@
 	})
 
 	apiGetUserInfoNoEncrypt({
+		data: "ddddddd",
 		userID: '10001',
 		userName: 'Mike',
 	}).then((res) => {
