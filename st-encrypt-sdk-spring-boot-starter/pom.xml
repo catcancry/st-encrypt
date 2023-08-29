@@ -35,12 +35,6 @@
             <artifactId>st-encrypt-sdk</artifactId>
             <version>${revision}</version>
         </dependency>
-
-        <dependency>
-            <groupId>cn.hutool</groupId>
-            <artifactId>hutool-extra</artifactId>
-            <version>${hutool.version}</version>
-        </dependency>
     </dependencies>
 
 </project>

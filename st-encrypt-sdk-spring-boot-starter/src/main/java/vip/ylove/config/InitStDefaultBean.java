@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
+import vip.ylove.sdk.json.StAbstractJsonDcode;
+import vip.ylove.sdk.json.StDefaultJsonCode;
 import vip.ylove.sdk.server.dencrypt.StAbstractAuth;
 import vip.ylove.sdk.server.dencrypt.StAbstractRequestDencrypt;
 import vip.ylove.sdk.server.encrypt.StAbstractResponseEncrypt;
@@ -33,6 +35,13 @@ public class InitStDefaultBean {
     public StAbstractAuth StAbstractAuthInitDefault(){
         log.debug("没有自定义StAbstractAuth,使用默认设置");
         return new StAbstractAuth() { };
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(StAbstractJsonDcode.class)
+    public StAbstractJsonDcode StAbstractJsonInitDefault(){
+        log.debug("StAbstractJson,使用默认设置");
+        return new StDefaultJsonCode();
     }
     
 }

@@ -11,7 +11,7 @@
 
     <groupId>vip.ylove</groupId>
     <artifactId>spring-boot-example-server</artifactId>
-    <version>1.0</version>
+    <version>${revision}</version>
 
     <dependencies>
 
@@ -29,19 +29,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
-            <version>${spring-boot.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>cn.hutool</groupId>
-            <artifactId>hutool-all</artifactId>
-            <version>${hutool.version}</version>
         </dependency>
 
         <dependency>

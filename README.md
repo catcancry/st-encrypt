@@ -3,6 +3,7 @@
 
 Spring Boot接口加密，可以对返回值、参数值通过注解的方式自动加解密
 
+3.0版本支持sprintgboot3.x,1.2.1支持springboot2.x
 
 调用端发送的请求信息
 ```
@@ -40,13 +41,13 @@ Spring Boot接口加密，可以对返回值、参数值通过注解的方式自
 <dependency>
     <groupId>vip.ylove</groupId>
     <artifactId>st-encrypt-sdk</artifactId>
-    <version>3.0.0</version>
+    <version>3.0.1</version>
 </dependency>
 或者
 <dependency>
     <groupId>vip.ylove</groupId>
     <artifactId>st-encrypt-sdk-spring-boot-starter</artifactId>
-    <version>3.0.0</version>
+    <version>3.0.1</version>
 </dependency>
 ```
 
@@ -55,7 +56,7 @@ Spring Boot接口加密，可以对返回值、参数值通过注解的方式自
 <dependency>
     <groupId>vip.ylove</groupId>
     <artifactId>st-encrypt-sdk-spring-boot-starter</artifactId>
-    <version>3.0.0</version>
+    <version>3.0.1</version>
 </dependency>
 ```
 - **启动类Application中添加@StEnableSecurity注解**
@@ -134,6 +135,36 @@ if( stEncryptBody.isSuccess()){
 }
 
 ```
+
+- **若需要修改默认的json序列化工具Jackson,只需要实现StAbstractJsonDcode接口就可以**
+```
+/**
+ * 配置加解密使用fastjson
+ */
+@Configuration
+public class ConfigStJsonDcode {
+    @Bean
+    public StAbstractJsonDcode initStAbstractJsonCode(){
+        return new StAbstractJsonDcode(){
+            @Override
+            public String toJson(Object data) {
+                return JSONObject.toJSONString(data);
+            }
+
+            @Override
+            public <T> T toBean(String data, Class<T> cls) {
+                return JSONObject.parseObject(data,cls);
+            }
+
+            @Override
+            public <T> T toBean(byte[] data, Class<T> cls) {
+                return JSONObject.parseObject(data,cls);
+            }
+        };
+    }
+}
+```
+
 目前支持GET,POST等，包括一般get请求，post json请求，post表单请求，和文件上传请求
 可以参考提供的demo实现客户端和第三方调用,
 

@@ -13,12 +13,12 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.HandlerInterceptor;
 import vip.ylove.FileUploadUtils;
-import vip.ylove.JsonUtils;
 import vip.ylove.config.StConfig;
 import vip.ylove.sdk.annotation.StEncrypt;
 import vip.ylove.sdk.annotation.StEncryptSkip;
 import vip.ylove.sdk.common.StConst;
 import vip.ylove.sdk.exception.StException;
+import vip.ylove.sdk.json.StAbstractJsonDcode;
 import vip.ylove.sdk.server.dencrypt.StAbstractAuth;
 import vip.ylove.sdk.server.dencrypt.StAbstractRequestDencrypt;
 
@@ -40,6 +40,9 @@ public class StRequestHandlerIntercepter implements HandlerInterceptor {
     private StConfig stConfig;
     @Autowired
     private StAbstractAuth stAuth;
+    @Autowired
+    private StAbstractJsonDcode stJson;
+
     /**
      *  默认的空body
      **/
@@ -144,7 +147,7 @@ public class StRequestHandlerIntercepter implements HandlerInterceptor {
         rq.removeStEncryptParams();
         byte[] dencrypt = stDencrypt.dencrypt(stConfig.getPrivateKey(), key, data, stEncrypt, stAuth);
         if (dencrypt != null) {
-            params = JsonUtils.toBean(new String(dencrypt, StConst.DEFAULT_CHARSET), Map.class);
+            params = stJson.toBean(new String(dencrypt, StConst.DEFAULT_CHARSET), Map.class);
             rq.addParameters(params);
         }
         if (rq.getMultiFileMap() != null && !rq.getMultiFileMap().isEmpty()) {
@@ -193,7 +196,7 @@ public class StRequestHandlerIntercepter implements HandlerInterceptor {
         requestWrapper.removeStEncryptParams();
         byte[] dencrypt = stDencrypt.dencrypt(stConfig.getPrivateKey(), key, data, stEncrypt, stAuth);
         if (dencrypt != null) {
-            Map<String, Object> params = JsonUtils.toBean(new String(dencrypt, StConst.DEFAULT_CHARSET), Map.class);
+            Map<String, Object> params = stJson.toBean(new String(dencrypt, StConst.DEFAULT_CHARSET), Map.class);
             requestWrapper.addParameters(params);
         }
     }
@@ -203,7 +206,7 @@ public class StRequestHandlerIntercepter implements HandlerInterceptor {
     private void updateByBodyJson(StEncrypt stEncrypt, HttpServletRequest request) {
         StHttpServletRequestWrapper requestWrapper = (StHttpServletRequestWrapper) request;
         String body = new String(requestWrapper.getBody(),StConst.DEFAULT_CHARSET);
-        byte[] bodyData = stDencrypt.dencrypt(stConfig.getPrivateKey(), body, stEncrypt, stAuth);
+        byte[] bodyData = stDencrypt.dencrypt(stConfig.getPrivateKey(), body, stEncrypt, stAuth,stJson);
         if (bodyData == null) {
             requestWrapper.setBody(nullBody);
         } else {
