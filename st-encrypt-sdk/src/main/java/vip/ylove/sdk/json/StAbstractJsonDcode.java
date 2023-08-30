@@ -15,7 +15,7 @@ public interface StAbstractJsonDcode {
     /**
      * String to Bean
      * @param data data
-     * @param cls Class<T></>
+     * @param cls cs
      * @return T
      * @param <T>
      */
@@ -24,7 +24,7 @@ public interface StAbstractJsonDcode {
     /**
      * String to Bean
      * @param data data
-     * @param cls Class<T></>
+     * @param cls cls
      * @return T
      * @param <T>
      */
