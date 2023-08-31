@@ -8,7 +8,6 @@ import cn.hutool.crypto.asymmetric.KeyType;
 import cn.hutool.crypto.asymmetric.RSA;
 import cn.hutool.crypto.asymmetric.SignAlgorithm;
 import cn.hutool.crypto.symmetric.SymmetricAlgorithm;
-import cn.hutool.json.JSONUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import vip.ylove.sdk.common.StAuthInfo;
@@ -16,8 +15,8 @@ import vip.ylove.sdk.common.StConst;
 import vip.ylove.sdk.dto.StBody;
 import vip.ylove.sdk.dto.StResquestBody;
 import vip.ylove.sdk.exception.StException;
-
-import java.util.HashMap;
+import vip.ylove.sdk.json.StAbstractJsonDcode;
+import vip.ylove.sdk.json.StDefaultJsonCode;
 
 /**
  *  调用端加密请求参数和解密响应结果工具
@@ -26,6 +25,19 @@ import java.util.HashMap;
 public class StClientUtil {
 
     private static Logger log = LoggerFactory.getLogger(StClientUtil.class);
+
+    /**
+     * 默认json序列化方式
+     */
+    private static StAbstractJsonDcode DEFAULT_JSON = new StDefaultJsonCode(){};
+
+    /**
+     * 允许修改工具中默认json序列化方式 在直接使用sdk情况下好用
+     * @param stAbstractJsonDcode
+     */
+    public static void configJsonDcode(StAbstractJsonDcode stAbstractJsonDcode){
+         DEFAULT_JSON = stAbstractJsonDcode;
+    }
 
     /**
      * key 对象,包含了一对被base64公私钥字符
@@ -80,6 +92,47 @@ public class StClientUtil {
     }
 
     /**
+     * 生成加密请求参数(在线程不变的情况下可以使用这个方法，完成加密解密)
+     * @param publicKey 加密公钥
+     * @param t       时间戳
+     * @param appId   授权id 可以为空
+     * @param auth    授权值 可以为空
+     * @param data    加密内容
+     * @return vip.ylove.sdk.dto.StResquestBody
+     */
+    public static StResquestBody encrypt(final String publicKey,final  long t,final  String appId,final String auth,final Object data) {
+        return encrypt( publicKey, StClientUtil.createAESBase64Key(),  t,  appId,  auth, data,DEFAULT_JSON);
+    }
+
+    /**
+     * 生成加密请求参数(在线程不变的情况下可以使用这个方法，完成加密解密)
+     * @param publicKey 加密公钥
+     * @param t       时间戳
+     * @param appId   授权id 可以为空
+     * @param auth    授权值 可以为空
+     * @param data    加密内容
+     * @return vip.ylove.sdk.dto.StResquestBody
+     */
+    public static StResquestBody encrypt(final String publicKey,final long t,final String appId,final String auth,final String data) {
+        return encrypt( publicKey, StClientUtil.createAESBase64Key(),  t,  appId,  auth, data);
+    }
+
+    /**
+     * 生成加密请求参数
+     * @param publicKey 加密公钥
+     * @param aesKey  随机aesKey
+     * @param t       时间戳
+     * @param appId   授权id 可以为空
+     * @param auth    授权值 可以为空
+     * @param data    加密内容
+     * @param json    json转换
+     * @return vip.ylove.sdk.dto.StResquestBody
+     */
+    public static StResquestBody encrypt(final String publicKey, final String aesKey, final long t, final String appId, final String auth, final Object data, final StAbstractJsonDcode json) {
+        return encrypt( publicKey,  aesKey,  t,  appId,  auth, json.toJson(data));
+    }
+
+    /**
      * 生成加密请求参数
      * @param publicKey 加密公钥
      * @param aesKey  随机aesKey
@@ -90,7 +143,7 @@ public class StClientUtil {
      * @return vip.ylove.sdk.dto.StResquestBody
      */
     public static StResquestBody encrypt(final String publicKey,final String aesKey,final long t,final String appId,final String auth,final Object data) {
-        return encrypt( publicKey,  aesKey,  t,  appId,  auth, JSONUtil.toJsonStr(data));
+        return encrypt( publicKey,  aesKey,  t,  appId,  auth, DEFAULT_JSON.toJson(data));
     }
     /**
      * 生成加密请求参数
@@ -139,35 +192,6 @@ public class StClientUtil {
         String sign = null;//由于使用的一把公私钥加密解密,因此加签就不需要了
         String encryptData = SecureUtil.aes(StrUtil.bytes(aesKey,StConst.DEFAULT_CHARSET)).encryptBase64(data,StConst.DEFAULT_CHARSET);
         return new StResquestBody( sign,  key,  encryptData);
-    }
-
-
-
-
-    /**
-     * 生成加密请求参数(在线程不变的情况下可以使用这个方法，完成加密解密)
-     * @param publicKey 加密公钥
-     * @param t       时间戳
-     * @param appId   授权id 可以为空
-     * @param auth    授权值 可以为空
-     * @param data    加密内容
-     * @return vip.ylove.sdk.dto.StResquestBody
-     */
-    public static StResquestBody encrypt(final String publicKey,final  long t,final  String appId,final String auth,final Object data) {
-        return encrypt( publicKey, StClientUtil.createAESBase64Key(),  t,  appId,  auth, JSONUtil.toJsonStr(data));
-    }
-
-    /**
-     * 生成加密请求参数(在线程不变的情况下可以使用这个方法，完成加密解密)
-     * @param publicKey 加密公钥
-     * @param t       时间戳
-     * @param appId   授权id 可以为空
-     * @param auth    授权值 可以为空
-     * @param data    加密内容
-     * @return vip.ylove.sdk.dto.StResquestBody
-     */
-    public static StResquestBody encrypt(final String publicKey,final long t,final String appId,final String auth,final String data) {
-        return encrypt( publicKey, StClientUtil.createAESBase64Key(),  t,  appId,  auth, data);
     }
 
     /**

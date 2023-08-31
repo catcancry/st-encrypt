@@ -7,6 +7,7 @@ import cn.hutool.crypto.digest.DigestUtil;
 import vip.ylove.sdk.annotation.StEncrypt;
 import vip.ylove.sdk.common.StConst;
 import vip.ylove.sdk.exception.StException;
+import vip.ylove.sdk.json.StAbstractJsonDcode;
 import vip.ylove.sdk.util.StAuthUtil;
 import vip.ylove.sdk.util.StServerUtil;
 
@@ -27,8 +28,8 @@ public interface StAbstractRequestDencrypt {
      * @param stAuth     鉴权方法 可为空
      * @return byte[]
      */
-    default public byte[] dencrypt(final String privateKey,final String content,final StEncrypt stEncrypt,final StAbstractAuth stAuth) {
-        return StServerUtil.dencrypt(privateKey,content,stEncrypt,stAuth);
+    default public byte[] dencrypt(final String privateKey, final String content, final StEncrypt stEncrypt, final StAbstractAuth stAuth, final StAbstractJsonDcode stAbstractJson) {
+        return StServerUtil.dencrypt(privateKey,content,stEncrypt,stAuth,stAbstractJson);
     }
 
     /**

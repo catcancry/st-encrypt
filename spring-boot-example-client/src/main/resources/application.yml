@@ -3,17 +3,8 @@ spring:
     name: client
   profiles:
     active: ${user_env:dev} #多环节配置
-  servlet:
-    multipart:
-      enabled: true #是否启用http上传处理
-      max-request-size: 100MB #最大请求文件的大小
-      max-file-size: 20MB #设置单个文件最大长度
-      file-size-threshold: 20MB #当文件达到多少时进行磁盘写入
-  mvc:
-    dispatch-options-request: true
-
   jackson:
-    date-format: yyyy-MM-dd HH:mm:ss
+    #    date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
 
 server:
@@ -21,33 +12,12 @@ server:
   servlet:
     context-path: "/${spring.application.name}"
 
-# Sa-Token配置
-sa-token:
-  # token名称 (同时也是cookie名称)
-  token-name: satoken
-  # token有效期，单位s 默认7天, -1代表永不过期
-  timeout: 604800
-  # token临时有效期 (指定时间内无操作就视为token过期) 单位: 秒
-  activity-timeout: -1
-  # 是否允许同一账号并发登录 (为true时允许一起登录, 为false时新登录挤掉旧登录)
-  is-concurrent: true
-  # 在多人登录同一账号时，是否共用一个token (为true时所有登录共用一个token, 为false时每次登录新建一个token)
-  is-share: false
-  # token风格
-  token-style: uuid
-  # 是否输出操作日志
-  is-log: false
-  # jwt秘钥
-  jwt-secret-key: asdasdasifhueuiwy22urfewbfjsdafjk
-
 logging:
   level:
     vip.ylove: debug
 
-
 st:
   encrypt:
-    privateKey: 'MIICdQIBADANBgkqhkiG9w0BAQEFAASCAl8wggJbAgEAAoGBAIcDbaSFraZGQiaHVeoErVYfl3+SKBUDZYAEog+u9AxISFWs8/e3b5WuRH1jHDB0IfyWC8KVtUHU5whu2sK6uCs9RriHkpaa0MXmFhtRDWqG8EjIJWKBcwx29LhRHvxq5UeDQYj0OrXBnpvWHNlB0T0pz4Fj+jvb4h7CuTzhwDdpAgMBAAECgYBFsQJWq14wdxHMW42Ah7uFujb0ddhUyHULONkCqXd2I5WbC/S/CKQDqnnWE2PIqxmkDTuyzJ5Mhf5fvwETBVjs0JpxOe8m6NPhtV2j4eoiUGTIEggAN0zn0Ayk9b1VqYJ0SZs3WoVanTRFjuLSHtuInXrKdayVLkyxuUGwewmSAQJBAMYPOKS0yMRZP87rGric2i+8otXcXwr4+snrTexOvvLwGOqIezRX0AZy9c1JihM5pRcTCIh1OFEEHGZBmXmtsSkCQQCugqdFpEreIHLKpJ/2VEZfRoh66GXSkIF4dFvqERr+C34R2BDFXgyle6Vnuemuk2u4WtZIMCsfCB1NQOt/D9xBAkBpSLIdrBSFe8QVpJjBxm+drLMK6GiFlrEKIVF86qdK0SMNmZuUyZFFvFq50/vYGG6QA4gnsdhMCNln6jtBmXlxAkA+W11eGzjNapbaJj0qji6fONrn4EcSGKTK3/lACGC2ynB/+87yV4r5Ttdp2xrPUMo7E+ph3SRrcEDYLAx6WLaBAkByjHmr8/2PJhMnbDcWepTRPL+nT/HpbZzxFiHnivRsC9McOLARWou3hEEirIkkrKWZW7G1gAXF9VwU6DX9PAjA'
     publicKey: 'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCHA22kha2mRkImh1XqBK1WH5d/kigVA2WABKIPrvQMSEhVrPP3t2+VrkR9YxwwdCH8lgvClbVB1OcIbtrCurgrPUa4h5KWmtDF5hYbUQ1qhvBIyCVigXMMdvS4UR78auVHg0GI9Dq1wZ6b1hzZQdE9Kc+BY/o72+Iewrk84cA3aQIDAQAB'
     appId: '123456'
     appAuth: '123456'
