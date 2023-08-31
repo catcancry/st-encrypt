@@ -165,8 +165,13 @@ public class ConfigStJsonDcode {
 }
 ```
 
-目前支持GET,POST等，包括一般get请求，post json请求，post表单请求，和文件上传请求
-可以参考提供的demo实现客户端和第三方调用,
+>1. 在和springboot进行集成的时候,在一些场景下例如需要进行xss参数过滤时候,
+> 参数已经被加密,许多框架是在filter层过滤处理就会失败，因为在filter层参数还是加密的状态
+> 可以调整代码在HandlerInterceptor进行xss过滤，
+> 可以参考代码vip.ylove.server.advice.dencrypt.StRequestHandlerIntercepter 这个类的代码进行处理
+
+>2. 目前支持GET,POST等，包括一般get请求，post json请求，post表单请求，和文件上传请求
+可以参考提供的demo实现客户端和第三方调用
 
 
 
