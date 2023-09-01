@@ -4,7 +4,6 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.SecureUtil;
 import cn.hutool.crypto.asymmetric.KeyType;
 import cn.hutool.crypto.asymmetric.SignAlgorithm;
-import cn.hutool.json.JSONUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import vip.ylove.sdk.annotation.StEncrypt;
@@ -14,6 +13,8 @@ import vip.ylove.sdk.common.StErrorCode;
 import vip.ylove.sdk.dto.StResponseBody;
 import vip.ylove.sdk.dto.StResquestBody;
 import vip.ylove.sdk.exception.StException;
+import vip.ylove.sdk.json.StAbstractJsonDcode;
+import vip.ylove.sdk.json.StDefaultJsonCode;
 import vip.ylove.sdk.server.dencrypt.StAbstractAuth;
 
 /**
@@ -22,6 +23,19 @@ import vip.ylove.sdk.server.dencrypt.StAbstractAuth;
 public class StServerUtil {
 
     private static Logger log = LoggerFactory.getLogger(StServerUtil.class);
+
+    /**
+     * 默认json序列化方式
+     */
+    private static StAbstractJsonDcode DEFAULT_JSON = new StDefaultJsonCode(){};
+
+    /**
+     * 允许修改工具中默认json序列化方式 在直接使用sdk情况下好用
+     * @param stAbstractJsonDcode
+     */
+    public static void configJsonDcode(StAbstractJsonDcode stAbstractJsonDcode){
+        DEFAULT_JSON = stAbstractJsonDcode;
+    }
 
     /**
      * 加密响应结果
@@ -46,6 +60,20 @@ public class StServerUtil {
         return new StResponseBody(sign, encryptData);
     }
 
+    /**
+     * 解密请求参数
+     *
+     * @param privateKey  私钥
+     * @param content    加密内容
+     * @param stEncrypt  扩展信息
+     * @param stAuth     鉴权接口
+     * @param json    json转换
+     * @return java.lang.Object
+     **/
+    public static byte[] dencrypt(final String privateKey,final String content,final StEncrypt stEncrypt,final StAbstractAuth stAuth,final StAbstractJsonDcode json) {
+        StResquestBody dencryptBody = json.toBean(content, StResquestBody.class);
+        return dencrypt(privateKey,dencryptBody.getKey(),dencryptBody.getData(),stEncrypt,stAuth);
+    }
 
     /**
      * 解密请求参数
@@ -57,7 +85,7 @@ public class StServerUtil {
      * @return java.lang.Object
      **/
     public static byte[] dencrypt(final String privateKey,final String content,final StEncrypt stEncrypt,final StAbstractAuth stAuth) {
-        StResquestBody dencryptBody = JSONUtil.toBean(content, StResquestBody.class);
+        StResquestBody dencryptBody = DEFAULT_JSON.toBean(content, StResquestBody.class);
         return dencrypt(privateKey,dencryptBody.getKey(),dencryptBody.getData(),stEncrypt,stAuth);
     }
 

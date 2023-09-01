@@ -156,89 +156,60 @@ StClientUtil.md5 = (data)=>{
  * @param {签名文件} file 
  * @param {回调函数 } fn {code:0,err:err,md5:md5,process:100}   0完成  1进行中
  */
-StClientUtil.md5File = (file,fn)=>{
-	const bmf = new BMF();
-	 bmf.md5(file,(err, md5) => {
-	      console.log('err:', err);
-	      console.log('md5 string:', md5); 
-		  fn&&fn({code:0,err:err,md5:md5,process:100});
-	    },
-	    progress => {
-			fn&&fn({code:1,process:progress});
-	    },
-	  );
+StClientUtil.md5File = (file)=>{
+	return new Promise((resolve) => {
+	  const bmf = new BMF();
+	  bmf.md5(file, (err, md5)=> {
+	    console.log('err:', err);
+	    console.log('md5 string:', md5);
+	    resolve({ code: 0, err: err, md5: md5, process: 100 });
+	  });
+	});
 }
-
-
-
-/**
- * 格式化日期
- * @param date 日期
- * @param formatType 格式化类型
- */
-StClientUtil.format = (date, formatType = 'yyyy-MM-dd hh:mm:ss')=> {
-  // eslint-disable-next-line no-extend-native
-  Date.prototype.format =
-    function(fmt) {
-      const o = {
-        'M+': this.getMonth() + 1, // 月份
-        'd+': this.getDate(), // 日
-        'h+': this.getHours(), // 小时
-        'm+': this.getMinutes(), // 分
-        's+': this.getSeconds(), // 秒
-        'q+': Math.floor((this.getMonth() + 3) / 3), // 季度
-        S: this.getMilliseconds() // 毫秒
-      }
-      if (/(y+)/.test(fmt)) {
-        fmt = fmt.replace(
-          RegExp.$1,
-          (this.getFullYear() + '').substr(4 - RegExp.$1.length)
-        )
-      }
-      for (const k in o) {
-        if (new RegExp('(' + k + ')').test(fmt)) {
-          fmt = fmt.replace(
-            RegExp.$1,
-            RegExp.$1.length === 1
-              ? o[k]
-              : ('00' + o[k]).substr(('' + o[k]).length)
-          )
-        }
-      }
-      return fmt
-    }
-  if (!date || !date.format) {
-    return date
-  }
-  return date.format(formatType)
-}
-
 
 /**
  *  对文件内容进行base64编码，再进行aes加密
- * @param {加密结果} result 
  * @param {AES加密key} aesKey 
  * @param {加密文件} file 
  */
-StClientUtil.enFile = (aesKey,file,fn)=>{
-   //获取文件原名称
-   const fileName = file.name;
-   const reader = new FileReader();
-   reader.onload = () => {
-		 const fileBase64 = reader.result;
-		 //获取文件类型
-		 const fileContenType = reader.result.match(/^data:\w+\/\w+[-]?\w+/)[0].replace("data:","");
-		 //删除base64前缀
-		 const endata = StClientUtil.encodeAES(fileBase64.replace(/^data:\w+\/\w+[-]?\w+;base64,/, ""),aesKey );
-		 //重新生成上传文件
-		 fn&&fn(new File([endata],fileName, {type: fileContenType}))
-	}
-   // readAsText(file, encoding)： 以纯文本形式读取文件， 读取到的文本保存在result属性中。 第二个参数代表编码格式。
-   // readAsDataURL(file)： 读取文件并且将文件以数据URI的形式保存在result属性中。
-   // readAsBinaryString(file)： 读取文件并且把文件以字符串保存在result属性中。
-   // readAsArrayBuffer(file)： 读取文件并且将一个包含文件内容的ArrayBuffer保存咋result属性中。
-   // FileReader.abort()： 中止读取操作。 在返回时， readyState属性为DONE。
-   reader.readAsDataURL(file);
+StClientUtil.enFile = (aesKey,file)=>{
+	return new Promise((resolve, reject) => {
+      //获取文件原名称
+      const fileName = file.name;
+      const reader = new FileReader();
+      reader.onload = () => {
+        let fileBase64 = reader.result;
+        if (fileBase64 == null) {
+          reject("error");
+          return;
+        }
+        let fileResult;
+        if (fileBase64 instanceof ArrayBuffer) {
+          const decoder = new TextDecoder();
+          fileResult = decoder.decode(fileBase64);
+        } else {
+          fileResult = fileBase64;
+        }
+        //获取文件类型
+        let fileContenType;
+        const fileContenTypes = fileResult.match(/^data:\w+\/\w+[-]?\w+/);
+        if (fileContenTypes == null || fileContenTypes.length == 0) {
+          fileContenType = "";
+        } else {
+          fileContenType = fileContenTypes[0].replace("data:", "");
+        }
+        //删除base64前缀
+        const endata = StClientUtil.encodeAES(fileResult.replace(/^data:\w+\/\w+[-]?\w+;base64,/, ""), aesKey);
+        //重新生成上传文件
+        resolve(new File([endata], fileName, { type: fileContenType }));
+      }
+      // readAsText(file, encoding)： 以纯文本形式读取文件， 读取到的文本保存在result属性中。 第二个参数代表编码格式。
+      // readAsDataURL(file)： 读取文件并且将文件以数据URI的形式保存在result属性中。
+      // readAsBinaryString(file)： 读取文件并且把文件以字符串保存在result属性中。
+      // readAsArrayBuffer(file)： 读取文件并且将一个包含文件内容的ArrayBuffer保存咋result属性中。
+      // FileReader.abort()： 中止读取操作。 在返回时， readyState属性为DONE。
+      reader.readAsDataURL(file);
+    })
 }
 
 

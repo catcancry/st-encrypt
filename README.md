@@ -3,6 +3,7 @@
 
 Spring Boot接口加密，可以对返回值、参数值通过注解的方式自动加解密
 
+3.0版本支持sprintgboot3.x,1.2.x支持springboot2.x
 
 调用端发送的请求信息
 ```
@@ -29,7 +30,7 @@ Spring Boot接口加密，可以对返回值、参数值通过注解的方式自
 
 ```
 
-- 1.每次请求的AES_KEY不同，AES_KEY保存浏览器内存，并且RSA_公钥加密传输，劫持者从始至终都不知道AES_KEY，保证了响应内容，劫持者且伪造服务器的响应结果
+- 1.每次请求的AES_KEY不同，AES_KEY保存浏览器内存，并且RSA_公钥加密传输，劫持者从始至终都不知道AES_KEY，保证了响应内容，劫持者无法伪造服务器的响应结果
 
 
 安全是相对的，只看价值和付出
@@ -40,13 +41,13 @@ Spring Boot接口加密，可以对返回值、参数值通过注解的方式自
 <dependency>
     <groupId>vip.ylove</groupId>
     <artifactId>st-encrypt-sdk</artifactId>
-    <version>1.2.1</version>
+    <version>1.2.3</version>
 </dependency>
 或者
 <dependency>
     <groupId>vip.ylove</groupId>
     <artifactId>st-encrypt-sdk-spring-boot-starter</artifactId>
-    <version>1.2.1</version>
+    <version>1.2.3</version>
 </dependency>
 ```
 
@@ -55,7 +56,7 @@ Spring Boot接口加密，可以对返回值、参数值通过注解的方式自
 <dependency>
     <groupId>vip.ylove</groupId>
     <artifactId>st-encrypt-sdk-spring-boot-starter</artifactId>
-    <version>1.2.1</version>
+    <version>1.2.3</version>
 </dependency>
 ```
 - **启动类Application中添加@StEnableSecurity注解**
@@ -134,8 +135,43 @@ if( stEncryptBody.isSuccess()){
 }
 
 ```
-目前支持GET,POST等，包括一般get请求，post json请求，post表单请求，和文件上传请求
-可以参考提供的demo实现客户端和第三方调用,
+
+- **若需要修改默认的json序列化工具Jackson,只需要实现StAbstractJsonDcode接口就可以**
+```
+/**
+ * 配置加解密使用fastjson
+ */
+@Configuration
+public class ConfigStJsonDcode {
+    @Bean
+    public StAbstractJsonDcode initStAbstractJsonCode(){
+        return new StAbstractJsonDcode(){
+            @Override
+            public String toJson(Object data) {
+                return JSONObject.toJSONString(data);
+            }
+
+            @Override
+            public <T> T toBean(String data, Class<T> cls) {
+                return JSONObject.parseObject(data,cls);
+            }
+
+            @Override
+            public <T> T toBean(byte[] data, Class<T> cls) {
+                return JSONObject.parseObject(data,cls);
+            }
+        };
+    }
+}
+```
+
+>1. 在和springboot进行集成的时候,在一些场景下例如需要进行xss参数过滤时候,
+> 参数已经被加密,许多框架是在filter层过滤处理就会失败，因为在filter层参数还是加密的状态
+> 可以调整代码在HandlerInterceptor进行xss过滤，
+> 可以参考代码vip.ylove.server.advice.dencrypt.StRequestHandlerIntercepter 这个类的代码进行处理
+
+>2. 目前支持GET,POST等，包括一般get请求，post json请求，post表单请求，和文件上传请求
+可以参考提供的demo实现客户端和第三方调用
 
 
 

@@ -1,19 +1,30 @@
 package vip.ylove.demo.rest.form;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.ToString;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 
 @Data
 @ToString
 public class TestForm {
-    @NotNull(message = "[t]t不能为空")
+
     String t;
+
     String appId;
+
     String auth;
+
     String test;
+
     String data;
+
+    Date now = new Date();
+
+    @JsonFormat(pattern = "yyyy年MM月dd日")
+    @JsonProperty("dddddddddddddddd")
+    Date now2 = new Date();
 }

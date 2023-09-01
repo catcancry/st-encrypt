@@ -59,6 +59,7 @@
 	})
 
 	apiGetUserInfoNoEncrypt({
+		data: "ddddddd",
 		userID: '10001',
 		userName: 'Mike',
 	}).then((res) => {
@@ -74,11 +75,11 @@
 		const aeskey = stClientUtil.createAesKey();
 		console.info("文件加密key:",aeskey)
 		//对原文进行md5,保证文件完整性
-		stClientUtil.md5File(file,(res)=>{
+		stClientUtil.md5File(file).then(res=>{
 			if(res.code == 0){
 				console.info("文件签名完成：",res)
 				//对文件进行加密
-				stClientUtil.enFile(aeskey,file,(enFile)=>{
+				stClientUtil.enFile(aeskey,file).then(enFile =>{
 					console.info("文件加密完成",enFile)
 					const fd = new FormData()//创建FormData对象,
 					fd.append('f', enFile)
@@ -91,14 +92,11 @@
 					upLoadFile(aeskey,fd).then(res=>{
 						console.info("上传结果:",res)
 					})
-					
 				})
-				
 			}else{
 				console.info("文件签名进度:",res.process);
 			}
-		})
-		
+		})		
 	}
 	
 	
@@ -109,7 +107,7 @@
 			return
 		}
 		//对原文进行md5,保证文件完整性
-		stClientUtil.md5File(file,(res)=>{
+		stClientUtil.md5File(file).then(res=>{
 			if(res.code == 0){
 				console.info("文件签名完成：",res)
 				const fd = new FormData()//创建FormData对象,

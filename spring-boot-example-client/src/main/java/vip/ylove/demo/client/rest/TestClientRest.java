@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import vip.ylove.demo.client.common.BaseResult;
 import vip.ylove.demo.client.common.EncryptResult;
+import vip.ylove.demo.client.common.Result;
 import vip.ylove.demo.client.config.StEncryptConfig;
 import vip.ylove.demo.client.service.TestServerService;
 import vip.ylove.sdk.dto.StResquestBody;
@@ -34,8 +35,8 @@ public class TestClientRest {
      */
     @PostMapping("/noEncrypt")
     public BaseResult noEncrypt(@RequestBody Object form){
-        BaseResult baseResult = serverService.noEncrypt(form);
-        return baseResult;
+        BaseResult result = serverService.noEncrypt(form);
+        return result;
     }
 
     /**
@@ -67,8 +68,7 @@ public class TestClientRest {
             result = stEncryptBody;
         }
         stopWatch.stop();
-        log.info(stopWatch.prettyPrint(TimeUnit.MILLISECONDS));
-
+        log.info(stopWatch.prettyPrint(TimeUnit.MICROSECONDS));
         return result;
     }
 
